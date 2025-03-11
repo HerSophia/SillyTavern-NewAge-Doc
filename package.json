@@ -1,0 +1,18 @@
+{
+  "devDependencies": {
+    "vitepress": "^1.6.3"
+  },
+  "scripts": {
+    "docs:dev": "vitepress dev docs",
+    "docs:build": "vitepress build docs",
+    "docs:preview": "vitepress preview docs"
+  },
+  "dependencies": {
+    "@tsparticles/vue3": "^3.0.1",
+    "swiper": "^11.2.5",
+    "tsparticles": "^3.8.1",
+    "typed-vue3": "^0.0.2",
+    "vue3-particles": "^2.12.0",
+    "vue3-typed-js": "^0.0.1"
+  }
+}

@@ -1,0 +1,134 @@
+/* 调整 Hero 区域样式 */
+/* 使 Hero 区域相对定位 */
+.VPHomeHero {
+  position: relative;
+  z-index: 0;
+  /* 确保 Hero 内容在背景上方 */
+  background-color: rgba(255, 255, 255, 0.8);
+  /* 添加半透明背景色，使文字更清晰 */
+  padding: 4rem 2rem;
+}
+
+/* 默认样式 (大屏幕) */
+.VPHero .image-src {
+  max-width: 250px;
+  max-height: 250px;
+  border-radius: 50%;
+}
+
+/* 小桌面 (max-width: 960px) */
+@media (max-width: 960px) {
+  .VPHero .image-src {
+    max-width: 200px;
+    max-height: 200px;
+    border-radius: 40%;
+    /* 稍微减小圆角 */
+  }
+}
+
+/* 平板 (max-width: 768px) */
+@media (max-width: 768px) {
+  .VPHero .image-src {
+    max-width: 150px;
+    max-height: 150px;
+    border-radius: 30%;
+    /* 进一步减小圆角 */
+  }
+}
+
+/* 手机 (max-width: 640px) */
+@media (max-width: 640px) {
+  .VPHero .image-src {
+    max-width: 100px;
+    max-height: 100px;
+    border-radius: 20%;
+    /* 更小的圆角 */
+  }
+}
+
+.VPHero .name {
+  font-size: 0.8rem;
+  /* 调整标题字体大小 */
+  color: #333;
+  /* 调整标题颜色 */
+}
+
+.VPHero .text {
+  font-size: 1.2rem;
+  /* 调整描述字体大小 */
+  color: #666;
+  /* 调整描述颜色 */
+}
+
+.VPImage .logo {
+  /* 设置固定大小 */
+  width: 50px;
+  height: 50px;
+
+  /* 或者，设置最大尺寸 */
+  /* max-width: 150px; */
+  /* max-height: 50px; */
+
+  /* 如果需要，可以添加其他样式，例如 margin、padding 等 */
+}
+
+/* 卡片式 Features 区域 */
+.VPFeatures {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  /* 自适应网格布局 */
+  gap: 1.5rem;
+  /* 卡片间距 */
+  padding: 2rem;
+}
+
+.VPFeature {
+  background-color: #fff;
+  /* 卡片背景颜色 */
+  border: 1px solid #ddd;
+  /* 卡片边框 */
+  border-radius: 8px;
+  /* 卡片圆角 */
+  padding: 1.5rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  /* 卡片阴影 */
+  transition: transform 0.2s ease;
+  /* 添加过渡效果 */
+}
+
+.VPFeature:hover {
+  transform: translateY(-5px);
+  /* 鼠标悬停时上移 */
+}
+
+.VPFeature .icon {
+  font-size: 2rem;
+  /* 图标大小 */
+  margin-bottom: 1rem;
+  /* 图标与标题的间距 */
+}
+
+.VPFeature .title {
+  font-size: 1.2rem;
+  /* 标题字体大小 */
+  font-weight: bold;
+  /* 标题加粗 */
+  margin-bottom: 0.5rem;
+  /* 标题与描述的间距 */
+}
+
+.VPFeature .details {
+  color: #666;
+  /* 描述颜色 */
+  font-size: 1.0rem;
+}
+
+/* 自定义容器样式 (可选) */
+.custom-block {
+  margin: 1rem 0;
+  padding: 1rem;
+  border-left: 4px solid #42b983;
+  /* 左侧边框颜色 */
+  background-color: #f0f8ff;
+  /* 背景颜色 */
+}
