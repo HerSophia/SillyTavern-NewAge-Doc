@@ -13,7 +13,7 @@ title: 快速开始
 - 在 SillyTavern 中，转到 **"扩展"** 面板。
 - 点击 **"安装扩展"**。
 - 输入本项目的 GitHub 仓库链接： `https://github.com/HerSophia/SillyTavern-NewAge`
-- 点击 **"只为我安装"**或者 **"为所有用户安装"**。
+- 点击 **"只为我安装"** 或者 **"为所有用户安装"**。
 
 ### 2. 安装依赖
 

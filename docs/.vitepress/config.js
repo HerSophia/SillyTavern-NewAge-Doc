@@ -9,6 +9,7 @@ export default {
     nav: [
       { text: '指南', link: '/guide/getting-started' },
       { text: 'API', link: '/api/' },
+      { text: 'Changelog', link: '/changelog' },
       { text: 'GitHub', link: 'https://github.com/HerSophia/SillyTavern-NewAge' }
     ],
     sidebar: {
@@ -43,7 +44,8 @@ export default {
     },
 
     socialLinks: [
-      { icon: 'github', link: 'https://github.com/HerSophia' }
+      { icon: 'github', link: 'https://github.com/HerSophia' },
+      { icon: 'discord', link: 'https://discord.gg/vpw8hgF8CR' }
     ],
 
     head: [
