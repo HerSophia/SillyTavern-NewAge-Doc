@@ -1,0 +1,32 @@
+name: Deploy VitePress to GitHub Pages
+
+on:
+  push:
+    branches:
+      - master  # 触发部署的分支 (根据您的设置修改)
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # 如果您的项目使用了 lastUpdated，则需要设置为 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20 # 或您需要的 Node.js 版本
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build VitePress
+        run: npm run docs:build
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./docs/.vitepress/dist # 构建输出目录

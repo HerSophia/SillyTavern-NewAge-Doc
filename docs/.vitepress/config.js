@@ -2,6 +2,8 @@ export default {
   title: 'NewAge',
   description: '基于 Socket.IO 的双向通信扩展',
 
+  base:'/SillyTavern-NewAge-Doc/',
+
   themeConfig: {
     logo: '/logo1.png',
     nav: [
