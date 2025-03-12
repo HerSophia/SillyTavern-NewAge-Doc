@@ -45,7 +45,7 @@ export default {
 
     head: [
       ['link', { rel: 'stylesheet', href: '/custom.css' }],
-      ['link', { rel: 'icon', href: '/favicon.ico' }],
+      ['link', { rel: 'icon', href: '/SillyTavern-NewAge-Doc/favicon.ico' }],
     ],
     search: {
       provider: 'local',
