@@ -57,7 +57,7 @@ export default {
           collapsed: false,
           items: [
             // 客户端相关的 API 页面
-            { text: '快速开始', link: '/api/client/getting-started' },
+            { text: '快速开始(客户端)', link: '/api/client/getting-started' },
             { text: '通用事件', link: '/api/client/common-events' },
             { text: 'LLM交互', link: '/api/client/llm-interaction' },
             { text: '函数调用', link: '/api/client/function-call' },
