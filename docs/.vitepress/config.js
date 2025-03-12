@@ -89,5 +89,7 @@ export default {
     }
   },
 
+  ignoreDeadLinks: true
+
   // ... 其他配置
 };
