@@ -13,6 +13,9 @@ hero:
       text: 快速开始
       link: /guide/getting-started
     - theme: alt
+      text: 它能做什么？
+      link: /use-cases
+    - theme: alt
       text: 在 GitHub 上查看
       link: https://github.com/HerSophia/SillyTavern-NewAge
 

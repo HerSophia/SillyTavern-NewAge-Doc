@@ -4,7 +4,7 @@
   position: relative;
   z-index: 0;
   /* 确保 Hero 内容在背景上方 */
-  background-color: rgba(255, 255, 255, 0.8);
+
   /* 添加半透明背景色，使文字更清晰 */
   padding: 4rem 2rem;
 }
@@ -47,16 +47,28 @@
 }
 
 .VPHero .name {
-  font-size: 0.8rem;
+  font-size: 3rem;
   /* 调整标题字体大小 */
-  color: #333;
+  background-color: #007bff;
   /* 调整标题颜色 */
 }
 
+:root {
+  --vp-home-hero-name-color: transparent;
+  --vp-home-hero-name-background: -webkit-linear-gradient(120deg, #066fe0, #00c6ff);
+}
+
 .VPHero .text {
+  font-size: 2rem;
+  /* 调整描述字体大小 */
+  color: #23455d;
+  /* 调整描述颜色 */
+}
+
+.VPHero .tagline {
   font-size: 1.2rem;
   /* 调整描述字体大小 */
-  color: #666;
+  color: #6f7376;
   /* 调整描述颜色 */
 }
 
@@ -121,6 +133,45 @@
   color: #666;
   /* 描述颜色 */
   font-size: 1.0rem;
+}
+
+/* 默认样式 (大屏幕) */
+.image-wrapper {
+  width: 100%;
+  height: 100%;
+  /* 设置容器宽度 */
+  margin: 0 auto;
+  /* 水平居中 */
+  text-align: center;
+  /* 图片水平居中 */
+}
+
+.responsive-image {
+  max-width: 100%;
+  /* 图片最大宽度为容器的 100% */
+  height: auto;
+  /* 保持宽高比 */
+  display: block;
+  /* 设置为块级元素 */
+  margin: 0 auto;
+}
+
+/* 媒体查询 (小屏幕) */
+@media (max-width: 768px) {
+  .image-wrapper {
+    width: 95%;
+    /* 小屏幕上增加容器宽度 */
+  }
+}
+
+[data-route="/use-cases"] .content-container {
+  max-width: 100%;
+  padding-left: 30px;
+  padding-right: 30px;
+  /* 以下属性可选 */
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
 /* 自定义容器样式 (可选) */

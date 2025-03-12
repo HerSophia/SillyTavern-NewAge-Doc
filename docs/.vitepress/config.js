@@ -2,7 +2,7 @@ export default {
   title: 'NewAge',
   description: '基于 Socket.IO 的双向通信扩展',
 
-  base:'/SillyTavern-NewAge-Doc/',
+  base: '/SillyTavern-NewAge-Doc/',
 
   themeConfig: {
     logo: '/logo1.png',
@@ -10,6 +10,7 @@ export default {
       { text: '指南', link: '/guide/getting-started' },
       { text: 'API', link: '/api/' },
       { text: 'Changelog', link: '/changelog' },
+      { text: '案例', link: '/use-cases' },
       { text: 'GitHub', link: 'https://github.com/HerSophia/SillyTavern-NewAge' }
     ],
     sidebar: {
@@ -80,6 +81,13 @@ export default {
     head: [
       ['link', { rel: 'stylesheet', href: '/custom.css' }],
       ['link', { rel: 'icon', href: '/SillyTavern-NewAge-Doc/favicon.ico' }],
+      [
+        'link',
+        {
+          rel: 'stylesheet',
+          href: 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css',
+        },
+      ],
     ],
     search: {
       provider: 'local',
