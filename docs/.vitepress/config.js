@@ -18,6 +18,9 @@ export default {
           items: [
             { text: '快速开始', link: '/guide/getting-started' },
             { text: '安装', link: '/guide/installation' },
+            { text: '连接', link: '/guide/connect' },
+            { text: '设置', link: '/guide/setting' },
+            { text: '安装客户端', link: '/guide/install_client' },
             // ... 其他指南页面
           ]
         }

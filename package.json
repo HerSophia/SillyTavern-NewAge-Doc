@@ -9,6 +9,8 @@
   },
   "dependencies": {
     "@tsparticles/vue3": "^3.0.1",
+    "gojs": "^2.3.19",
+    "gojs-vue": "^1.0.1",
     "swiper": "^11.2.5",
     "tsparticles": "^3.8.1",
     "typed-vue3": "^0.0.2",

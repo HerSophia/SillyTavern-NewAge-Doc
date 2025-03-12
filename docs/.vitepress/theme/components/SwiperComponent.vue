@@ -127,6 +127,8 @@ export default {
 .feature-card .details {
   color: #666; /* 白天模式描述颜色 */
   flex: 1;
+  display: flex;
+  align-items: center;
   transition: color 0.3s ease; /* 添加颜色过渡 */
 }
 
