@@ -29,13 +29,42 @@ export default {
       '/api/': [
         {
           text: 'API',
+          items: [{ text: '总览', link: '/api/' }], // 保留 API 总览
+        },
+        {
+          text: '扩展 (Extension)',
+          collapsible: true, // 可折叠
+          collapsed: false, // 默认展开
           items: [
-            { text: '总览', link: '/api/' },
-            { text: '模块 1', link: '/api/module1' },
-            // ... 其他 API 页面
-          ]
-        }
-      ]
+            // 扩展相关的 API 页面
+            { text: '扩展 API 1', link: '/api/extension/api1' },
+            { text: '扩展 API 2', link: '/api/extension/api2' },
+          ],
+        },
+        {
+          text: '服务器 (Server)',
+          collapsible: true,
+          collapsed: false,
+          items: [
+            // 服务器相关的 API 页面
+            { text: '服务器 API 1', link: '/api/server/api1' },
+            { text: '服务器 API 2', link: '/api/server/api2' },
+          ],
+        },
+        {
+          text: '客户端 (Client)',
+          collapsible: true,
+          collapsed: false,
+          items: [
+            // 客户端相关的 API 页面
+            { text: '快速开始', link: '/api/client/getting-started' },
+            { text: '通用事件', link: '/api/client/common-events' },
+            { text: 'LLM交互', link: '/api/client/llm-interaction' },
+            { text: '函数调用', link: '/api/client/function-call' },
+            { text: '最佳实践', link: '/api/client/best-practices' },
+          ],
+        },
+      ],
     },
 
     footer: {

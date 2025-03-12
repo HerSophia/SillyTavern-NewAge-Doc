@@ -16,7 +16,7 @@ title: 连接
     * **记住我 (Remember Me):** 复选框，用于记住连接设置。
     * **连接 (Connect) 按钮**: 点击后尝试连接到服务器。
 
-    > \[!NOTE]
+    > [!NOTE]
     > 此处应插入图一 (连接界面截图)
     > `![连接界面](placeholder_connect_ui.png)`  <!-- 占位符 -->
 
@@ -36,11 +36,11 @@ title: 连接
     * **日志 (Logs) 区域:**
       - 显示连接状态、错误信息等日志。
 
-    > \[!NOTE]
+    > [!NOTE]
     > 此处应插入图二 (已连接 - 设置)
     > `![已连接 - 设置](placeholder_connected_settings.png)`  <!-- 占位符 -->
 
-    > \[!NOTE]
+    > [!NOTE]
     > 此处应插入图三 (已连接 - 日志)
     > `![已连接 - 日志](placeholder_connected_logs.png)`  <!-- 占位符 -->
 
