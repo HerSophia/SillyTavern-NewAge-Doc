@@ -48,8 +48,14 @@ export default {
           collapsed: false,
           items: [
             // 服务器相关的 API 页面
-            { text: '服务器 API 1', link: '/api/server/api1' },
-            { text: '服务器 API 2', link: '/api/server/api2' },
+            { text: '服务器总览', link: '/api/server/index' },
+            { text: '命名空间和事件', link: '/api/server/namespace-events' },
+            { text: '消息格式', link: '/api/server/messageFormats' },
+            { text: '认证和授权', link: '/api/server/authentication-and-authorization' },
+            { text: '消息传输', link: '/api/server/data-transmission' },
+            { text: '函数调用', link: '/api/server/function-call' },
+            { text: '客户端管理', link: '/api/server/client-management' },
+            { text: '房间管理', link: '/api/server/room-management' },
           ],
         },
         {
@@ -60,6 +66,7 @@ export default {
             // 客户端相关的 API 页面
             { text: '快速开始(客户端)', link: '/api/client/getting-started' },
             { text: '依赖库白名单', link: '/api/client/dependences_whiteList' },
+            { text: '约定俗成', link: '/api/client/customary-convention' },
             { text: '通用事件', link: '/api/client/common-events' },
             { text: 'LLM交互', link: '/api/client/llm-interaction' },
             { text: '函数调用', link: '/api/client/function-call' },

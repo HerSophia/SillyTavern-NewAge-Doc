@@ -17,8 +17,8 @@ SillyTavern-NewAge 服务器是一个基于 Node.js 和 Socket.IO 的实时通�
 
 在开始编写客户端代码之前，您需要在服务器上为您的客户端创建一个设置文件。
 
-* **位置:**  `server/settings` 文件夹
-* **文件名:**  应与您的客户端 ID (`clientId`) 相同 (例如 `my-client.json`)。
+* **位置:** `server/settings` 文件夹
+* **文件名:** 应与您的客户端 ID (`clientId`) 相同 (例如 `my-client.json`)。
 * **内容:**
 
     ```json
@@ -117,31 +117,85 @@ function generateUniqueId() {
 
 **代码解释:**
 
-* **导入:**  导入 `socket.io-client` 库。
+* **导入:** 导入 `socket.io-client` 库。
 * **常量:** 定义服务器地址、端口、客户端 ID、客户端类型、客户端key和认证信息。
-* **`io()`:**  创建 Socket.IO 连接实例。
+* **`io()`:** 创建 Socket.IO 连接实例。
   * 第一个参数是服务器地址和端口。
   * 第二个参数是选项对象，包含 `auth` 属性 (认证数据)。
 * **事件监听:**
-  * `connect`:  连接成功时触发。
-  * `connect_error`:  连接错误时触发。
-  * `disconnect`:  断开连接时触发。
+  * `connect`: 连接成功时触发。
+  * `connect_error`: 连接错误时触发。
+  * `disconnect`: 断开连接时触发。
 * **`connectToLLMNamespace`函数**：连接到`/llm`命名空间
-* **`sendLLMRequest`函数**：发送LLM请求
+* **`sendLLMRequest`函数`：发送LLM请求
 * **`generateUniqueId`函数**：生成唯一的请求ID
 * **导入**：展示了如何通过`import`导入并使用第三方依赖
 
 **关键步骤:**
 
-1. **安装依赖:**  确保您已安装了 `socket.io-client` 库 (以及其他需要的库，如上面例子中的 `uuid`)。
-2. **连接:**  使用 `io()` 函数连接到服务器。
-3. **认证:**  在连接选项中提供 `auth` 数据。
-4. **监听事件:**  监听 `connect`、`connect_error` 和 `disconnect` 事件。
+1. **安装依赖:** 确保您已安装了 `socket.io-client` 库 (以及其他需要的库，如上面例子中的 `uuid`)。
+2. **连接:** 使用 `io()` 函数连接到服务器。
+3. **认证:** 在连接选项中提供 `auth` 数据。
+4. **监听事件:** 监听 `connect`、`connect_error` 和 `disconnect` 事件。
 5. **连接到命名空间:** 连接到所需的命名空间 (例如 `/llm`)。
 6. **发送请求:** 使用 `socket.emit()` 发送请求。
 7. **接收响应:** 监听服务器发送的事件 (例如 `streamed_data`、`message` 或自定义事件)。
 
-## 4. 命名空间
+## 4. 向服务器申请加载静态资源
+
+客户端可以通过向服务器发送函数调用请求来加载静态资源。这允许客户端按需加载所需的资源，例如 HTML、JavaScript、CSS 文件或图像等。
+
+**请求方法:**
+
+1. **使用 `/function_call` 命名空间。**
+2. **调用 `addStaticResources` 函数。**
+3. **传递 `initialResources` 参数:**
+    * `initialResources` 是一个对象。
+    * 对象的**键**是您希望客户端访问资源的 URL 路径 (例如 `/my-client/script.js`)。
+    * 对象的**值**是该资源相对于 `server.js` 文件的相对路径 (例如 `./client/my-client/script.js`)。
+
+**示例代码 (在已连接的 Socket.IO 连接上):**
+
+```javascript
+// 假设您已经有了一个名为 functionCallSocket 的 /function_call 命名空间的连接
+
+// 定义您要加载的资源
+const initialResources = {
+  '/my-client/index.html': './exampleClient/your_client_name/index.html',
+  '/my-client/script.js': './exampleClient/your_client_name/script.js',
+  '/my-client/style.css': './exampleClient/your_client_name/style.css',
+  // 添加更多资源...
+};
+
+// 生成一个唯一的请求 ID
+const requestId = generateUniqueId();
+
+// 发送函数调用请求
+functionCallSocket.emit(MSG_TYPE.FUNCTION_CALL, {
+  requestId: requestId,
+  functionName: 'addStaticResources',
+  args: initialResources,
+  target: 'server' // 目标是服务器
+}, (response) => {
+  if (response.success) {
+    console.log('静态资源加载成功:', response.result);
+    // 现在可以通过 URL 访问这些资源了，例如：
+    // http://localhost:4000/my-client/index.html
+  } else {
+    console.error('静态资源加载失败:', response.error);
+  }
+});
+```
+
+**重要说明:**
+
+* 确保 `initialResources` 对象中的路径正确。
+* 服务器会将 URL 路径映射到相应的文件系统路径。服务器在启动时就已经把部分资源自动加载好了(包括 `/client` 和 `/exampleClient`)，请注意尽量不要重复加载。
+* 成功加载后，您可以通过浏览器或其他客户端代码访问这些资源。
+* 您可以在需要时多次调用 `addStaticResources` 来加载不同的资源。
+* 您也可以参考`server.js`文件中的`initializeStaticResources()`函数来了解服务器加载静态资源的详细机制。
+
+## 5. 命名空间
 
 以下是 SillyTavern-NewAge 服务器提供的一些常用命名空间：
 
@@ -153,7 +207,8 @@ function generateUniqueId() {
 * `/rooms`: 用于房间管理 (通常由服务器使用)。
 * `/sillytavern`：主要用于服务器和 SillyTavern 扩展之间的通讯
 
-## 5.错误处理
+## 6.错误处理
+
 客户端应该监听 `MSG_TYPE.ERROR` 事件来处理服务器发送的错误消息：
 
 ```javascript
@@ -164,7 +219,9 @@ socket.on(MSG_TYPE.ERROR, (error) => {
 ```
 
 ## 下一步
+
 你可以参考如下内容，来获取更多信息：
+
 * [通用事件](#通用事件)
 * [LLM 交互 ( /llm 命名空间)](#llm-交互--llm-命名空间)
 * [函数调用 ( /function_call 命名空间)](#函数调用--function_call-命名空间)

@@ -13,7 +13,9 @@ title: 安装客户端
 * **根目录:**  客户端仓库的根目录应为 `server` 文件夹。
 * **客户端代码:**  客户端代码 (例如 HTML, JavaScript, CSS 文件) 应放置在 `server` 文件夹下的 `exampleClient` 或 `Client` 文件夹中。
 * **客户端设置:**  客户端的 `settings.json` 文件应提前在 `server/settings` 文件夹中创建好 (参见 [设置](/guide/setting) 部分)。
-* **客户端所需依赖:** 客户端所需的依赖库如果是纯浏览器环境的依赖，则可以直接放入`server/lib` 文件夹中，依赖的js文件最好是放在 `lib/<依赖库的名字>` 文件夹中。
+* **客户端所需依赖:** 
+  * 客户端所需的依赖库如果是纯浏览器环境的依赖，则可以直接放入`server/lib` 文件夹中，依赖的js文件最好是放在 `lib/<依赖库的名字>` 文件夹中。
+  * 客户端所需的依赖库如果不适用于纯浏览器环境，即只能从 `node_modules` 中导入的依赖，则请一定要使用依赖库白名单中的依赖 (参见 [依赖白名单](../api/client/dependences_whiteList))。如果的确有你想要使用但不在名单上的依赖，则请联系我们。
 
 **示例目录结构:**
 
@@ -24,9 +26,11 @@ server/
 │   ├── server_settings.json
 │   └── your_client_id.json  (您的客户端设置文件)
 ├── exampleClient/   (或 Client/)
-│   ├── index.html     (客户端入口文件)
-│   ├── script.js      (客户端脚本)
-│   └── style.css      (客户端样式)
+│     └── your_client_name  (你的客户端名字)
+│       ├── index.html      (客户端入口文件)
+│       ├── script.js       (客户端脚本)
+│       ├── style.css       (客户端样式)
+│       └── dependences.txt (依赖名单)
 ├── package.json
 ├── server.js
 └── ...

@@ -51,6 +51,12 @@ title: 快速开始
   - 检查服务器地址和端口是否正确。
   - 尝试关闭防火墙或安全软件，看看是否阻止了连接。
 
+- **SillyTavern端口问题？**
+  - 如果你的端口不是默认的 `8000` ，则请在/server/settings文件夹中复制一份 `SillyTavern-8000-settings.json` 并重命名。
+  - 重命名的格式为 `SillyTavern-<你自定义的端口>-settings` ，`<你自定义的端口>` 指的就是SillyTavern运行的端口。
+  - 随后，在新的这一份JSON文件中，修改 `clientId` 的值，与你的端口一致
+  - `sillyTavernPassWord` 的值可直接设置为你想要的密码，默认密码是经过哈希的，你设置新的密码后再启动服务器，服务器自动哈希你的密码，所以请记住你的密码。
+
 - **出现其他问题？**
   - 请查看本项目的GitHub仓库中的[issue](https://github.com/HerSophia/SillyTavern-NewAge/issues)部分，查看是否有人遇到相似的问题。
 

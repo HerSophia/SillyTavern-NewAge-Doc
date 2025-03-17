@@ -413,7 +413,7 @@ import { callFunction } from './functionCallAPI';
 
 // 你可以像如下代码来加载你想要的静态资源，具体用法详见开发文档，也可以参考server.js的initializeStaticResources()
 
-// 键：URL，值：文件相对于本js文件的相对路径
+// 键：URL，值：文件相对于 server.js 的文件系统路径
 const initialResources = {}
 
 functionCallSocket.emit(MSG_TYPE.FUNCTION_CALL, {

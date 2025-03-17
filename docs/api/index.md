@@ -22,6 +22,7 @@ SillyTavern-NewAge 扩展的 API 分为三个主要部分：
 
 * [快速开始](/api/client/getting-started)
 * [依赖白名单](/api/client/dependences_whiteList)
+* [约定俗成](/api/client/customary-convention)
 * [通用事件](/api/client/common-events)
 * [LLM 交互](/api/client/llm-interaction)
 * [函数调用](/api/client/function-call)
