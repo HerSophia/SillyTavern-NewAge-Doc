@@ -1,17 +1,6 @@
 <template>
   <div class="table-container">
-    <el-select v-model="filterMode" placeholder="选择筛选模式" @change="filterData" style="margin-bottom: 10px;">
-      <el-option label="全部" value="all"></el-option>
-      <el-option label="技术栈" value="stack"></el-option>
-      <el-option label="类别" value="category"></el-option>
-    </el-select>
-
-    <el-select v-if="filterMode !== 'all'" v-model="filterValue" placeholder="选择筛选值" @change="filterData"
-      style="margin-bottom: 10px; margin-left: 10px;">
-      <el-option v-for="item in filterOptions" :key="item" :label="item" :value="item"></el-option>
-    </el-select>
-
-    <el-table :data="filteredDependencies" style="width: 100%">
+    <el-table :data="dependencies" style="width: 100%">
       <el-table-column prop="name" label="库名" min-width="180" />
       <el-table-column prop="version" label="版本" min-width="120" />
       <el-table-column prop="stack" label="技术栈" min-width="120" />
@@ -22,20 +11,19 @@
 </template>
 
 <script>
-import { ref, computed, watch } from 'vue';
-import { ElTable, ElTableColumn, ElSelect, ElOption } from 'element-plus';
+import { ref } from 'vue';
+// 引入element-plus的table组件
+import { ElTable, ElTableColumn } from 'element-plus';
+//如果全局引入了,则不需要import
 
 export default {
   name: 'WhiteList',
   components: {
     ElTable,
     ElTableColumn,
-    ElSelect,
-    ElOption,
   },
   setup() {
     const dependencies = ref([
-      // ... (之前的依赖库数据)
       {
         name: '@fortawesome/fontawesome-svg-core',
         version: '^6.7.2',
@@ -185,40 +173,8 @@ export default {
       },
     ]);
 
-    const filterMode = ref('all'); // 筛选模式：'all', 'stack', 'category'
-    const filterValue = ref('');   // 筛选值
-
-    // 根据筛选模式生成筛选选项
-    const filterOptions = computed(() => {
-      if (filterMode.value === 'stack') {
-        return [...new Set(dependencies.value.map((item) => item.stack))];
-      } else if (filterMode.value === 'category') {
-        return [...new Set(dependencies.value.map((item) => item.category))];
-      }
-      return [];
-    });
-
-    // 筛选后的数据
-    const filteredDependencies = ref(dependencies.value);
-    // 初始加载和筛选模式/值变化时触发
-    watch([filterMode, filterValue], () => {
-      filterData();
-    });
-    function filterData() {
-      if (filterMode.value === 'all') {
-        filteredDependencies.value = dependencies.value;
-      } else {
-        filteredDependencies.value = dependencies.value.filter(
-          (item) => item[filterMode.value] === filterValue.value
-        );
-      }
-    }
     return {
       dependencies,
-      filterMode,
-      filterValue,
-      filterOptions,
-      filteredDependencies,
     };
   },
 };
@@ -226,12 +182,13 @@ export default {
 
 <style scoped>
 .table-container {
-  overflow-x: auto;
+  overflow-x: auto; /* 允许水平滚动 */
 }
 
+/* 媒体查询，针对小屏幕 */
 @media (max-width: 768px) {
   .table-container {
-    width: 100%;
+    width: 100%; /* 小屏幕下容器宽度为100% */
   }
 }
 </style>
