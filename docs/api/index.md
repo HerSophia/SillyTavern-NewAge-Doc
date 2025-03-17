@@ -11,7 +11,7 @@ title: API 总览
 SillyTavern-NewAge 扩展的 API 分为三个主要部分：
 
 * **客户端 API:**  供希望与 SillyTavern-NewAge 服务器交互的**非 SillyTavern 扩展**客户端（例如独立的 Web 应用、桌面应用、移动应用）开发者使用。
-* **扩展 API:** 供 SillyTavern 扩展开发者使用, 允许创建新的 SillyTavern 扩展。
+* **扩展 API:** 供 SillyTavern 扩展开发者使用, 用于理解扩展端内部的工作原理。
 * **服务器 API:** 供 SillyTavern-NewAge 服务器开发者和高级用户使用，用于理解服务器内部工作原理、进行高级配置或贡献代码。
 
 ## 客户端 API
@@ -52,17 +52,16 @@ SillyTavern-NewAge 扩展的 API 分为三个主要部分：
 
 服务器 API 主要供 SillyTavern-NewAge **内部团队的开发人员**和**想要贡献代码的开发者**参考。它详细介绍了服务器的内部工作原理、各个模块的功能以及如何进行高级配置。
 
-**主要内容 (待补充):**
+**主要内容:**
 
-* 服务器架构
-* 命名空间和事件
-* 消息格式
-* 认证和授权
-* 客户端管理
-* 房间管理
-* 函数调用机制
-* 错误处理
-* ...
+* [服务器总览](/api/server/index)
+* [命名空间和事件](/api/server/namespace-events)
+* [消息格式](/api/server/messageFormats)
+* [认证和授权](/api/server/authentication-and-authorization)
+* [消息传输](/api/server/data-transmission)
+* [客户端管理](/api/server/function-call)
+* [房间管理](/api/server/client-management)
+* [函数调用机制](/api/server/room-management)
 
 ## 注意事项
 
