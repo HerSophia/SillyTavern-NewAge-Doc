@@ -96,6 +96,8 @@ const serverAddress = 'http://localhost'; // 从环境变量或配置文件中�
 const serverPort = 4000;
 const clientId = 'my-client';
 const clientType = 'web-app';
+const clinetDesc = '服务器监控网页'
+const clientHTML = `${serverAddress}:${serverPort}/yourAddress.html`
 // const clientKey = 'your-secret-key'; // 不要硬编码！
 // 从安全的地方获取客户端密钥 (例如，环境变量、配置文件、安全存储)
 const clientKey = process.env.CLIENT_KEY || 'fallback-key'; // 示例：从环境变量获取
@@ -107,6 +109,7 @@ const authData = = {
     clientId: 'monitor',
     key: 'getKey',
     desc: '服务器监控网页',
+    clienthtml: clientHTML;
   } 
 const authSocket = newSocket(NAMESPACES.AUTH, authData, true, true);
 
@@ -120,6 +123,8 @@ const authData = {
   clientType: clientType,
   clientId: clientId,
   key: clientKey,
+  desc: clinetDesc,
+  clienthtml: clientHTML,
 };
 
 const sockets = {};

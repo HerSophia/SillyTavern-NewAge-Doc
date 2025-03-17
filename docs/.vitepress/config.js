@@ -11,7 +11,7 @@ export default {
       { text: 'API', link: '/api/' },
       { text: 'Changelog', link: '/changelog' },
       { text: '案例', link: '/use-cases' },
-      { text: 'GitHub', link: 'https://github.com/HerSophia/SillyTavern-NewAge' }
+      { text: 'GitHub', link: 'https://github.com/HerSophia/SillyTavern-NewAge' },
     ],
     sidebar: {
       '/guide/': [
@@ -24,8 +24,8 @@ export default {
             { text: '设置', link: '/guide/setting' },
             { text: '安装客户端', link: '/guide/install_client' },
             // ... 其他指南页面
-          ]
-        }
+          ],
+        },
       ],
       '/api/': [
         {
@@ -59,6 +59,7 @@ export default {
           items: [
             // 客户端相关的 API 页面
             { text: '快速开始(客户端)', link: '/api/client/getting-started' },
+            { text: '依赖库白名单', link: '/api/client/dependences_whiteList' },
             { text: '通用事件', link: '/api/client/common-events' },
             { text: 'LLM交互', link: '/api/client/llm-interaction' },
             { text: '函数调用', link: '/api/client/function-call' },
@@ -70,12 +71,12 @@ export default {
 
     footer: {
       message: 'Released under the MIT License.',
-      copyright: 'Copyright © 2024-present HerSophia'
+      copyright: 'Copyright © 2024-present HerSophia',
     },
 
     socialLinks: [
       { icon: 'github', link: 'https://github.com/HerSophia' },
-      { icon: 'discord', link: 'https://discord.gg/vpw8hgF8CR' }
+      { icon: 'discord', link: 'https://discord.gg/Yyegdmq3' },
     ],
 
     head: [
@@ -94,10 +95,10 @@ export default {
       options: {
         detailedView: true, // 显示详细的搜索结果 (包括匹配的内容片段)
       },
-    }
+    },
   },
 
-  ignoreDeadLinks: true
+  ignoreDeadLinks: true,
 
   // ... 其他配置
 };

@@ -7,6 +7,7 @@ import Typewriter from './components/Typewriter.vue';
 import ConnectFlowchart from './components/ConnectFlowchart.vue';
 import ClientWorkflow from './components/ClientWorkflow.vue';
 import Floors from './components/Floors.vue';
+import whiteList from './components/WhiteList.vue';
 import './custom.css'
 
 import {
@@ -139,5 +140,6 @@ export default {
     app.component('ConnectFlowchart', ConnectFlowchart);
     app.component('ClientWorkflow', ClientWorkflow);
     app.component('Floors', Floors);
+    app.component('WhiteList', whiteList);
   },
 };

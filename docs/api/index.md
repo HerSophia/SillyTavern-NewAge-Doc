@@ -21,6 +21,7 @@ SillyTavern-NewAge 扩展的 API 分为三个主要部分：
 **主要内容:**
 
 * [快速开始](/api/client/getting-started)
+* [依赖白名单](/api/client/dependences_whiteList)
 * [通用事件](/api/client/common-events)
 * [LLM 交互](/api/client/llm-interaction)
 * [函数调用](/api/client/function-call)
@@ -31,7 +32,7 @@ SillyTavern-NewAge 扩展的 API 分为三个主要部分：
 > [!NOTE]
 > 扩展 API 文档正在建设中。
 
-扩展 API 允许开发者创建新的 SillyTavern 扩展，以扩展 SillyTavern 的功能。
+扩展 API 允许开发者扩展 SillyTavern 的功能。
 
 **主要内容 (待补充):**
 
