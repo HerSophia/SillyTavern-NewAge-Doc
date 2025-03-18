@@ -56,6 +56,7 @@ export default {
             { text: '函数调用', link: '/api/server/function-call' },
             { text: '客户端管理', link: '/api/server/client-management' },
             { text: '房间管理', link: '/api/server/room-management' },
+            { text: '日志管理', link: '/api/server/log' },
           ],
         },
         {

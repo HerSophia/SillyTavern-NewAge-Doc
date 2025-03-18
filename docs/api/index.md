@@ -62,6 +62,7 @@ SillyTavern-NewAge 扩展的 API 分为三个主要部分：
 * [客户端管理](/api/server/function-call)
 * [房间管理](/api/server/client-management)
 * [函数调用机制](/api/server/room-management)
+* [日志管理](/api/server/log)
 
 ## 注意事项
 
