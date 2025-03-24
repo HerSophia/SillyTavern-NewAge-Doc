@@ -49,9 +49,10 @@ export default {
           items: [
             // 服务器相关的 API 页面
             { text: '服务器总览', link: '/api/server/index' },
-            { text: '命名空间和事件', link: '/api/server/namespace-events' },
+            { text: '命名空间和响应事件', link: '/api/server/namespace-events' },
             { text: '消息格式', link: '/api/server/messageFormats' },
             { text: '认证和授权', link: '/api/server/authentication-and-authorization' },
+            { text: '聊天系统', link: '/api/server/chat-system' },
             { text: '消息传输', link: '/api/server/data-transmission' },
             { text: '函数调用', link: '/api/server/function-call' },
             { text: '客户端管理', link: '/api/server/client-management' },

@@ -99,37 +99,73 @@ graph LR
 
 ### 3.3. 模块
 
-服务器代码被组织成清晰的模块结构，每个模块负责特定的功能，提高了代码的可维护性和可扩展性：
+服务器代码被组织成以下几个主要模块：
 
-* **`server.js`:**  服务器主程序入口文件，负责：
-  * 初始化 Express 应用和 HTTP 服务器。
-  * 初始化 Socket.IO 服务器并配置 CORS。
-  * 加载服务器配置 (`serverSettings`)，包括从配置文件加载和默认配置合并。
-  * 启动 HTTP 和 Socket.IO 服务器监听指定端口。
-  * 配置静态资源服务，将 `/lib`, `/dist`, `/exampleClient`, `/public` 目录映射为静态资源路由。
-  * 定义根路径 `/` 和 `/index.html` 路由，返回 `monitor.html`。
-  * 配置 404 错误处理。
-  * 调用 `initializeStaticResources` 函数初始化静态资源缓存。
-  * 调用 `loadServerSettings` 加载服务器配置和初始化可信客户端/SillyTavern。
-  * 定义 `reinitializeSocketIO` 函数，用于重新初始化 Socket.IO 服务器。
-  * 注册 `function_call` 功能的服务器端函数。
-* **`lib/`:** 存放服务器核心库模块和常量定义，包含多个子模块：
-  * **`constants.js`:**  定义了整个服务器应用中使用的常量，包括 `MSG_TYPE` (消息类型常量)、`STREAM_EVENTS` (流事件名称常量) 和 `NAMESPACES` (Socket.IO 命名空间常量) 和 `EVENTS` (服务器内部事件名称常量)，是整个服务器的常量字典。
-  * **`uuid/uuid.js`**: 自定义模块, 封装了 UUID v4 生成函数 `uuidv4`，用于生成唯一 ID。
-  * **`chat.js`**:  核心模块 `ChatModule` 的定义，封装了聊天功能的主要逻辑，包括房间管理、成员管理、消息处理、LLM 请求和响应的处理、消息队列管理和消息请求模式管理，是服务器的核心业务逻辑模块。
-  * **`memberManagement.js`**:  定义了 `MemberManagement` 类，负责聊天应用的成员管理功能，包括成员信息维护、成员生命周期管理、成员角色管理和房间操作，与 `ChatModule` 协同工作，处理成员相关的业务逻辑。
-  * **`relationsManage.js`**:  定义了 `RelationsManage` 类，负责客户端房间和 SillyTavern 扩展端之间的关系管理，核心功能是根据不同的连接策略，将可用的 SillyTavern 扩展端分配给客户端房间，并动态更新和广播分配结果，实现扩展端资源的有效管理和分配。
-  * **`stream.js`**:  定义了流式数据处理相关的函数，包括 `setupServerStreamHandlers` (设置服务器端流式处理程序) 和 `forwardStreamData` (流式转发数据)，用于处理 SillyTavern 扩展端向服务器发送的流式 LLM 响应，以及服务器向客户端转发流式数据。
-  * **`non_stream.js`**:  定义了非流式消息处理相关的函数，包括 `sendNonStreamMessage` (发送非流式消息) 和 `setupServerNonStreamHandlers` (设置服务器端非流式消息处理器)，用于处理客户端和服务器之间传统的、一次性发送完整消息的非流式通信。
-  * **`logger.js`**:  定义了日志记录模块，封装了 `winston` 库，提供了 `logger` 实例和 `log`, `error`, `warn`, `info`, `debug` 等便捷的日志记录函数，用于服务器端的日志记录。
-* **`dist/`:**  存放服务器核心模块的编译输出，包含以下模块：
-  * **`debug.js`:**  定义了调试功能相关的函数，包括 `addDebugClients`, `removeDebugClients` (调试客户端管理) 和 `setupSocketListenersOnDebugNsp`, `setupServerStreamHandlers` (调试命名空间事件监听器设置) 等，用于处理服务器端的调试模式切换、服务器状态查询、日志读取等功能。
-  * **`function_call.js`:**  定义了可供远程调用的服务器端函数，例如 `readJsonFromFile`, `saveJsonToFile`, `addStaticResources` 等，这些函数可以通过 `/function_call` 命名空间被客户端动态调用，扩展服务器功能。
-  * **`Keys.js`:**  定义了客户端密钥管理模块，包括 `generateAndStoreClientKey` (生成和存储客户端密钥), `isValidClientKey` (验证客户端密钥), `removeClientKey` (移除客户端密钥), `getClientKey` (获取客户端密钥), `getAllClientKeys` (获取所有客户端密钥) 等函数，负责客户端密钥的生成、存储、验证和管理。
-  * **`logger.js`:**  日志记录模块的编译输出，与 `lib/logger.js` 功能相同，提供日志记录功能。
-  * **`Rooms.js`:**  房间管理模块的编译输出，定义了 `addClientToRoom`, `createRoom`, `deleteRoom`, `getAllRooms`, `getClientRooms`, `isClientInRoom`, `removeClientFromRoom` 等函数，封装了与 Socket.IO 房间管理相关的底层操作，提供房间管理 API。
-  * **`non_stream.js`**:  非流式消息处理模块的编译输出，与 `lib/non_stream.js` 功能相同。
-  * **`stream.js`**:  流式数据处理模块的编译输出，与 `lib/stream.js` 功能相同。
+* **`server.js`:**  服务器的主入口文件，负责：
+  * 初始化 Express 和 Socket.IO 服务器。
+  * 加载服务器设置 (`loadServerSettings`)。
+  * 设置 Express 中间件（例如，`express.json()` 用于解析 JSON 请求体）。
+  * 设置静态资源目录（允许客户端访问 `/lib`, `/dist`, `/exampleClient`, `/public` 目录下的文件）。
+  * 处理客户端连接和身份验证 (`checkAuth`, `isValidKey`)。
+  * 为每个 Socket.IO 命名空间设置事件监听器 (`setupSocketListenersOn...Nsp`)。
+  * 将客户端请求路由到相应的命名空间和处理程序。
+  * 定义通用函数，如 `cleanUpClient` (客户端断开连接时清理数据) 和 `readLogFile` (读取日志文件)。
+  * 初始化静态资源 (`initializeStaticResources`)。
+
+* **`lib/`:** 包含一些库函数和常量定义, 这些模块通常不直接处理 Socket.IO 事件，而是提供辅助功能：
+  * **`constants.js`:**  定义常量，包括：
+    * `NAMESPACES`: Socket.IO 命名空间。
+    * `MSG_TYPE`: 消息类型 (用于 `socket.emit` 和 `socket.on` 的事件名称)。
+    * `EVENTS`: 服务器内部事件名称（用于日志记录和调试）。
+    * `STREAM_EVENTS`: 流式消息事件名称。
+
+* **`dist/`:** 包含服务器的核心逻辑，这些模块通常直接处理 Socket.IO 事件：
+  * **`debug.js`:**  包含 `addDebugClients` 和 `removeDebugClients` 函数（当前似乎未使用），用于调试客户端管理。
+  * **`function_call.js`:**  提供可供客户端通过 `/function_call` 命名空间远程调用的函数。主要函数：
+    * `readJsonFromFile`: 读取 JSON 文件。
+    * `saveJsonToFile`: 保存 JSON 文件。
+    * `addStaticResources`: 动态添加静态资源。
+  * **`Keys.js`:**  管理客户端密钥。主要函数：
+    * `generateAndStoreClientKey`: 生成并存储客户端密钥。
+    * `getClientKey`: 获取客户端密钥。
+    * `isValidClientKey`: 验证客户端密钥。
+    * `removeClientKey`: 移除客户端密钥。
+    * `getAllClientKeys`: 获取所有客户端密钥。
+  * **`logger.js`:**  提供日志记录功能，使用 `winston` 库。主要函数：
+    * `logger`: winston 日志记录器实例。
+    * `log`, `error`, `warn`, `info`, `debug`: 方便的日志记录函数。
+  * **`Rooms.js`:**  提供与 Socket.IO 房间 API 交互的函数。主要函数：
+    * `createRoom`: 创建房间 (如果房间不存在，Socket.IO 会自动创建)。
+    * `deleteRoom`: 删除房间 (将所有客户端移出房间)。
+    * `addClientToRoom`: 将客户端添加到房间。
+    * `removeClientFromRoom`: 将客户端从房间移除。
+  * **`non_stream.js`**:  处理非流式 Socket.IO 事件。主要函数：
+    * `sendNonStreamMessage`: 客户端/服务器发送非流式消息。
+    * `setupServerNonStreamHandlers`: 服务器端设置非流式消息处理器。
+  * **`stream.js`**:  处理流式 Socket.IO 事件。主要函数：
+    * `setupServerStreamHandlers`:  服务器端设置流式消息处理程序 (SillyTavern -> 服务器)。
+    * `forwardStreamData`: 将流式数据从服务器转发到客户端 (服务器 -> 客户端)。
+  * **`uuid/uuid.js`**:  提供 `uuidv4` 函数，用于生成 UUID (通用唯一标识符)。
+  * **`chat.js`:** 定义了 `ChatModule` 类，这是服务器的核心模块之一，负责：
+    * 房间管理 (创建、删除、加入、离开房间)。
+    * 成员管理 (添加、移除成员，获取成员信息，设置成员角色等)。
+    * 消息队列管理 (添加、编辑、删除、清空消息)。
+    * LLM 请求和响应处理 (`handleLlmRequest`, `handleLlmResponse`)。
+    * 连接策略管理 (与 `RelationsManage` 模块交互)。
+    * 处理离线消息。
+  * **`memberManagement.js`:** 定义了 `MemberManagement` 类。负责管理客户端成员信息：
+    * 添加、移除成员
+    * 获取成员信息
+    * 设置成员角色
+    * 踢出成员
+    * 禁言成员
+    * 通知房间的 master 和 manager
+  * **`relationsManage.js`:** 定义了 `RelationsManage` 类。负责管理客户端房间和 SillyTavern 扩展之间的关系：
+    * 设置连接策略
+    * 手动分配扩展
+    * 更新分配
+    * 广播可用扩展列表
+    * 添加/移除已连接的扩展和客户端房间
 
 ### 3.4. 核心概念
 
@@ -144,16 +180,102 @@ graph LR
 * **连接策略 (`connectionPolicy`):**  服务器端配置的扩展端连接策略，决定了如何将可用的 SillyTavern 扩展端分配给客户端房间，支持多种策略 ('Free', 'Manual', 'Balanced', 'Broadcast', 'Random')，管理员可以根据需求灵活配置。
 * **消息请求模式 (`messageRequestMode`):**  服务器端配置的消息请求模式，决定了如何处理客户端的 LLM 请求，例如是否需要等待 Master 客户端的请求、是否立即转发请求等，支持多种模式 ('Default', 'Immediate', 'MasterOnly', 'Separate')，可以适应不同的 LLM 请求处理场景。
 
-## 4. 工作流程 (示例：LLM 请求 - 流式响应)
+## 4. 工作流程
 
-1. **客户端发起 LLM 请求:** 客户端 (例如 Web 应用程序) 通过 Socket.IO 连接到 `/llm` 命名空间，并发送 `LLM_REQUEST` 消息，消息中包含目标 SillyTavern 扩展的 `clientId` (`target`)、请求 ID (`requestId`)、客户端角色 (`role`) 和 LLM 请求数据。
-2. **服务器接收和路由请求:** 服务器的 `/llm` 命名空间事件处理程序接收到 `LLM_REQUEST` 消息，根据消息请求模式 (`messageRequestMode`) 和客户端角色 (`role`)，将请求路由到目标 SillyTavern 扩展端。对于流式请求，服务器会创建流缓冲区和输出缓冲区，并记录请求状态。
-3. **服务器转发请求到 SillyTavern:** 服务器通过 `/llm` 命名空间将 `LLM_REQUEST` 消息转发给目标 SillyTavern 扩展端。
-4. **SillyTavern 处理请求并返回流式响应:** SillyTavern 扩展端接收到 `LLM_REQUEST` 后，调用 LLM 模型进行推理，并将 LLM 的流式响应数据通过 Socket.IO 流式事件 (`CLIENT_STREAM_START`, `CLIENT_STREAM_DATA_FIRST`, `CLIENT_STREAM_DATA_MIDDLE`, `CLIENT_STREAM_DATA_LAST`, `CLIENT_STREAM_END`) 发送回服务器的 `/llm` 命名空间。
-5. **服务器接收和缓存流式数据:** 服务器的 `/llm` 命名空间流式事件处理程序 (`setupServerStreamHandlers`) 接收到来自 SillyTavern 的流式数据块，将数据块缓存到流缓冲区和输出缓冲区，并更新请求状态。
-6. **服务器转发流式数据到客户端:** 服务器的流式转发处理器 (`forwardStreamData`) 将接收到的流式数据块通过 `SERVER_STREAM_DATA` 事件转发回原始客户端所在的房间 (通过 `ChatModule` 的 `llmRequests` 映射找到原始请求房间)。客户端接收到 `SERVER_STREAM_DATA` 事件后，即可实时显示 LLM 的流式响应。
-7. **服务器处理完整响应:** 当 SillyTavern 扩展端发送 `CLIENT_STREAM_END` 事件表示流式响应结束时，服务器将流缓冲区中的数据组装成完整的 LLM 响应消息，并调用 `ChatModule.handleLlmResponse` 函数，将完整的响应数据传递给 `ChatModule` 进行后续处理 (例如，添加到聊天记录队列)。
-8. **客户端接收完整响应 (可选):**  客户端可以监听非流式消息事件，接收服务器在流式传输结束后发送的完整 LLM 响应消息 (虽然在流式传输场景下，客户端通常已经通过流式事件接收到完整的数据，非流式完整响应消息可能是冗余的，取决于具体实现)。
+SillyTavern-NewAge 服务器支持多种工作流程，包括客户端连接、身份验证、LLM 请求、房间管理、函数调用等。下面描述几个典型的工作流程：
+
+### 4.1. 客户端连接和身份验证
+
+1. **客户端连接:** 客户端 (SillyTavern 扩展、Web/移动应用、监控前端) 通过 Socket.IO 连接到服务器。客户端可以连接到不同的命名空间（`/`, `/auth`, `/llm` 等），具体取决于客户端类型和所需功能。
+2. **发送认证信息:** 客户端在连接时，通过 `socket.handshake.auth` 对象发送认证信息，包括 `clientId` (客户端 ID) 和 `key` (密钥)。
+3. **服务器验证:** 服务器在 `/auth` 命名空间处理身份验证请求。
+    * 检查 `clientId` 是否在 `trustedClients` 或 `trustedSillyTaverns` 列表中（客户端是否受信任）。
+    * 如果客户端是 SillyTavern 扩展，服务器会比较客户端提供的 `key` 与存储的哈希密钥。
+    * 如果客户端是普通客户端，服务器会使用 `Keys.js` 模块验证密钥。
+4. **认证结果:**
+    * 如果认证成功，服务器允许客户端连接到相应的命名空间，并触发后续的事件处理。
+    * 如果认证失败，服务器会断开与客户端的连接，并发送错误消息。
+
+### 4.2. LLM 请求 (非流式)
+
+这个流程展示了客户端如何通过服务器向 SillyTavern 扩展发送 LLM 请求并接收响应：
+
+1. **客户端发送请求:** 客户端连接到 `/llm` 命名空间，并发送 `LLM_REQUEST` 消息，消息中包含：
+    * `requestId`:  唯一请求 ID。
+    * `target`: 目标 SillyTavern 扩展的 `clientId` (或 `clientId` 数组)。
+    * `data`:  LLM 请求数据 (例如，用户输入、上下文信息等)。
+    * `role`: 客户端的角色。
+2. **服务器路由:** 服务器接收到 `LLM_REQUEST` 消息后：
+    * 验证客户端是否有权限向目标 SillyTavern 发送请求。
+    * 将请求信息存储在 `ChatModule` 的 `llmRequests` 映射中，用于后续响应路由。
+    * 根据`messageRequestMode` 和 `role`决定如何处理：
+        * `Default`: 如果是`guest`，请求会被加入队列；如果是`master`则合并请求，并转发给 SillyTavern 扩展。
+        * `Immediate`: 立即转发所有请求 (无需区分角色)
+        * `MasterOnly`: 只有 `master`的请求会被转发。
+        * `Separate`: 立即转发所有请求
+3. **SillyTavern 处理:** 目标 SillyTavern 扩展接收到 `LLM_REQUEST` 消息后：
+    * 处理 LLM 请求 (例如，调用语言模型 API)。
+    * 将 LLM 响应发送回服务器。
+4. **服务器转发响应:** 服务器接收到来自 SillyTavern 的响应后，根据 `requestId` 查找原始请求信息 (包括原始客户端的 `clientId` 和 `room`)，并将响应转发回原始客户端所在的房间。
+5. **客户端处理响应:** 客户端接收到LLM响应后进行处理。
+
+### 4.3. LLM 请求 (流式)
+
+1. **客户端发送请求:** 客户端连接到 `/llm` 命名空间，并发送 `LLM_REQUEST` 消息，指定消息类型为流式。
+2. **服务器转发:** 服务器根据上述流程，将请求转发给目标 SillyTavern 扩展端
+3. **SillyTavern发送流式数据:**
+
+   * SillyTavern 通过 `CLIENT_STREAM_START`事件开始流式传输，通过`CLIENT_STREAM_DATA_FIRST`，`CLIENT_STREAM_DATA_MIDDLE` 和 `CLIENT_STREAM_DATA_LAST`事件发送流式数据
+
+4. **服务器处理和转发:**
+
+   * 服务器通过`setupServerStreamHandlers`接收SillyTavern的流式事件。
+   * 通过`forwardStreamData`函数将流式数据通过`SERVER_STREAM_DATA`转发给原始客户端所在的房间。
+
+5. **SillyTavern 发送结束信号:** SillyTavern 通过 `CLIENT_STREAM_END` 事件结束流式传输。
+6. **服务器处理结束信号:** 服务器通过`setupServerStreamHandlers`接收SillyTavern的流式结束事件，并调用 `chatModule.handleLlmResponse`收集完整响应。
+
+### 4.4. 聊天系统工作流程 (房间、成员、消息)
+
+这是更详细的聊天系统工作流程，涵盖了房间管理、成员管理和消息交互：
+
+1. **房间创建 (通常由管理员):**
+    * 管理员客户端连接到 `/rooms` 命名空间。
+    * 发送 `CREATE_ROOM` 消息，指定房间名称 (`roomName`)。
+    * 服务器调用 `ChatModule` 的 `createRoom` 方法创建房间。
+    * 如果房间创建成功，服务器将创建者客户端添加到房间，并将其角色设置为 `master`。
+    * 服务器向管理员客户端发送成功响应。
+
+2. **客户端加入房间:**
+    * 客户端连接到 `/rooms` 命名空间（或默认命名空间，然后加入房间）。
+    * 发送 `JOIN_ROOM` 消息 (通过 `ChatModule` 间接调用)，指定要加入的房间名称 (`roomName`)。
+    * 服务器调用 `ChatModule` 的 `joinRoom` 方法将客户端添加到房间。
+    * 服务器将客户端添加到房间的成员列表中，并设置其角色 (默认为 `guest`)。
+    * 服务器向房间内的 `master` 和 `managers` 发送 `MEMBER_JOINED` 事件通知。
+
+3. **成员管理 (管理员操作):**
+    * **设置成员角色:** 管理员客户端发送 `SET_MEMBER_ROLE` 消息，指定目标客户端 ID (`targetClientId`)、房间名称 (`roomName`) 和新角色 (`role`)。 服务器调用 `ChatModule` 的 `memberManagement.setMemberRole` 方法更新成员角色。
+    * **踢出成员:** 管理员客户端发送 `KICK_MEMBER` 消息，指定目标客户端 ID 和房间名称。服务器调用 `ChatModule` 的 `memberManagement.kickMember` 方法将成员踢出房间。
+    * **禁言成员:** 管理员客户端发送 `MUTE_MEMBER` 消息，指定目标客户端 ID、房间名称和禁言时长。服务器调用 `ChatModule` 的 `memberManagement.muteMember` 方法禁言成员 (需要在 `MemberManagement.js` 中实现禁言逻辑)。
+
+4. **消息交互:**
+    * **发送消息:** 客户端 (通常在 `/llm` 命名空间) 发送 LLM 请求 (如 4.2 和 4.3 所述)。
+    * **编辑消息:** 客户端 (可以在 `/llm` 命名空间) 发送 `EDIT_MESSAGE` 消息，指定房间名称、消息 ID 和更新后的消息内容。服务器调用 `ChatModule` 的 `editMessage` 方法编辑消息。
+    * **删除消息:** 客户端发送 `DELETE_MESSAGE` 消息，指定房间名称和消息 ID。服务器调用 `ChatModule` 的 `deleteMessage` 方法删除消息。
+    * **清空消息:** 管理员客户端发送 `CLEAR_MESSAGES` 消息，指定房间名称。服务器调用 `ChatModule` 的 `clearMessages` 方法清空房间消息。
+
+5. **断开连接:** 客户端断开连接后，服务器通过`cleanUpClient` 函数清理客户端信息。
+
+### 4.5. 函数调用
+
+1. **客户端请求:** 客户端连接到 `/function_call` 命名空间，并发送 `FUNCTION_CALL` 消息，消息中包含：
+    * `requestId`: 唯一请求 ID。
+    * `functionName`: 要调用的服务器端函数名称。
+    * `args`: 函数参数。
+    * `target`: 目标 ('server' 或客户端 ID)。
+2. **服务器处理:**
+    * 如果 `target` 是 'server'，服务器在 `functionRegistry` 中查找函数并调用，然后将结果通过回调函数返回给客户端。
+    * 如果 `target` 是客户端 ID，服务器将请求转发给指定客户端。
 
 ## 5. 安全性
 

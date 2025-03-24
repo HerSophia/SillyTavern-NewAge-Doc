@@ -55,9 +55,10 @@ SillyTavern-NewAge 扩展的 API 分为三个主要部分：
 **主要内容:**
 
 * [服务器总览](/api/server/index)
-* [命名空间和事件](/api/server/namespace-events)
+* [命名空间和响应事件](/api/server/namespace-events)
 * [消息格式](/api/server/messageFormats)
 * [认证和授权](/api/server/authentication-and-authorization)
+* [聊天系统](/api/server/chat-system)
 * [消息传输](/api/server/data-transmission)
 * [客户端管理](/api/server/function-call)
 * [房间管理](/api/server/client-management)
