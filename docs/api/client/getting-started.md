@@ -53,7 +53,7 @@ SillyTavern-NewAge 服务器是一个基于 Node.js 和 Socket.IO 的实时通�
 
 客户端通常需要连接到 `/auth` 命名空间进行身份验证。
 
-1. **连接：** 客户端连接到 `/auth`，并在 `auth` 对象中提供 `clientId`、`clientType` 和 `key`。
+1. **连接：** 客户端连接到 `/auth`，并在 `auth` 对象中提供 `clientId`、`clientType`、`identity` 和 `key`。
 2. **验证：** 服务器验证客户端的身份。
 3. **结果：**
     * **成功：** 服务器广播客户端列表更新，并为客户端设置事件监听器。
@@ -63,6 +63,13 @@ SillyTavern-NewAge 服务器是一个基于 Node.js 和 Socket.IO 的实时通�
 
 * 获取客户端密钥 (`GET_CLIENT_KEY`)。
 * 获取已连接的 SillyTavern 扩展列表 (`GET_SILLYTAVERN_EXTENSION`)。
+
+> [!IMPORTANT]
+> 为什么需要 `identity` ？因为我们考虑到一种可能性：**服务器上同一个客户端启动了不同的客户端实例。**
+> 
+> 具体原因：每个独立的浏览器标签页/窗口（或独立的客户端应用程序实例）都会被视为一个**独立的客户端实例。**
+> 
+> 这是Socket.IO 的工作方式所决定的，而又考虑到clientId是直接决定了一个客户端是否可信，clientId不能随机化（特别地当前我们还不想改变这样的机制），使用 `identity` 即可保证不同客户端实例的正常工作。
 
 ### 3.3 获取和监听可用扩展分配
 
@@ -111,6 +118,7 @@ SillyTavern-NewAge 服务器是一个基于 Node.js 和 Socket.IO 的实时通�
 
 ```javascript
 import { io } from 'socket.io-client';
+import { v4 as uuidv4 } from 'uuid';
 // 请确保你已经安装了 socket.io-client:  npm install socket.io-client
 // 如果使用CDN，请参考：https://socket.io/zh-CN/docs/v4/cdn/
 
@@ -119,12 +127,14 @@ const serverPort = 4000;
 const clientId = 'my-client'; // 与 settings.json 中的 clientId 相同
 const clientType = 'web-app'; // 自定义客户端类型
 const clientKey = 'your-secret-key'; // 从SillyTavern扩展处复制
+const identity = `${clientId}` + uuidv4(); // 我们使用identity来识别同一种客户端但不同的客户端实例。强烈建议添加一个更具有可读性的后缀，例如让用户自行输入，而不是uuidv4。
 
 // 认证信息
 const authData = {
   clientType: clientType,
   clientId: clientId,
   key: clientKey, // 最好从服务器安全地获取，而不是硬编码
+  identity: identity,
 };
 
 // 连接到默认命名空间
@@ -134,6 +144,24 @@ const socket = io(`${serverAddress}:${serverPort}`, {
 
 socket.on('connect', () => {
   console.log('Connected to server!');
+
+  // 示例：向服务器提出请求以自动获取密钥，但前提是网络环境为相对安全
+  /*
+  const authData = = {
+    clientType: clientType,
+    clientId: clientId,
+    identity: identity,
+    key: 'getKey',
+    desc: '服务器监控网页',
+    clienthtml: clientHTML;
+  } 
+  const authSocket = newSocket(NAMESPACES.AUTH, authData, true, true);
+
+  authSocket.on(MSG_TYPE.GET_CLIENT_KEY , (data) =>){
+    const key = data.Key;
+    authData.key = key;
+  }
+  */
 
   // 连接成功后，可以连接到其他命名空间
     connectToLLMNamespace();

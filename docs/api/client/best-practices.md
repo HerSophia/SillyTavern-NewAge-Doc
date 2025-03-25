@@ -104,26 +104,30 @@ const clientType = 'web-app';
 const clientKey = process.env.CLIENT_KEY || 'fallback-key'; // 从安全的地方获取
 const clinetDesc = '网页'
 const clientHTML = `${serverAddress}:${serverPort}/yourAddress.html`
+const identity = `${clientId}` + uuidv4(); // 我们使用identity来识别同一种客户端但不同的客户端实例。强烈建议添加一个更具有可读性的后缀，例如让用户自行输入，而不是uuidv4。
+
 const authData = {
     clientType: clientType,
     clientId: clientId,
+    identity: identity,
     key: clientKey, // 从环境变量获取
     desc: clinetDesc,
     clienthtml: clientHTML,
 };
 
-// 示例：自动获取密钥，但前提是网络环境为相对安全
+// 示例：向服务器提出请求以自动获取密钥，但前提是网络环境为相对安全
 /*
 const authData = = {
-    clientType: 'monitor',
-    clientId: 'monitor',
+    clientType: clientType,
+    clientId: clientId,
+    identity: identity,
     key: 'getKey',
     desc: '服务器监控网页',
     clienthtml: clientHTML;
   } 
 const authSocket = newSocket(NAMESPACES.AUTH, authData, true, true);
 
-authSocket.on(MSG_TYPE.CLIENT_KEY , (data) =>){
+authSocket.on(MSG_TYPE.GET_CLIENT_KEY , (data) =>){
   const key = data.Key;
   authData.key = key;
   }
