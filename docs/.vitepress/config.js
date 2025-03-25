@@ -8,7 +8,7 @@ export default {
     logo: '/logo1.png',
     nav: [
       { text: '指南', link: '/guide/getting-started' },
-      { text: 'API', link: '/api/' },
+      { text: '开发文档', link: '/api/' },
       { text: 'Changelog', link: '/changelog' },
       { text: '案例', link: '/use-cases' },
       { text: 'GitHub', link: 'https://github.com/HerSophia/SillyTavern-NewAge' },
@@ -29,7 +29,7 @@ export default {
       ],
       '/api/': [
         {
-          text: 'API',
+          text: '开发文档',
           items: [{ text: '总览', link: '/api/' }], // 保留 API 总览
         },
         {

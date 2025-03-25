@@ -4,103 +4,113 @@ title: 最佳实践 (客户端)
 
 # 最佳实践 (Best Practices)
 
-本指南将提供一些开发 SillyTavern-NewAge 客户端的最佳实践，并提供详细的代码示例和解释。
+本指南将提供一些开发 SillyTavern-NewAge 客户端的最佳实践，并提供详细的代码示例和解释。我们将结合“快速开始”文档中的客户端生命周期，逐步构建一个模块化、健壮且安全的客户端。
 
-## 1. 模块化
+## 1. 概述
 
-将您的客户端代码组织成模块，以便更好地管理和维护。
+SillyTavern-NewAge 客户端通常是一个 Web 应用程序（但也可以是桌面应用、移动应用等），它通过 Socket.IO 与 SillyTavern-NewAge 服务器进行实时通信。客户端可以：
 
-* **连接管理:**  创建一个单独的模块 (例如 `socketManager.js`) 来处理 Socket.IO 连接的创建、管理和事件监听。
-* **API 封装:**  为不同的 API 功能 (LLM 交互、函数调用等) 创建单独的模块或函数。
-* **UI 更新:**  将 UI 更新逻辑与网络通信逻辑分离。
-* **常量:**  将常量 (例如消息类型、事件名称、命名空间) 提取到一个单独的文件 (例如 `constants.js`) 中。
-* **工具函数:** 将通用的工具函数 (例如生成唯一 ID) 提取到一个单独的文件 (例如 `utils.js`) 中。
+* 连接到服务器并进行身份验证。
+* 获取和监听可用的 SillyTavern 扩展列表。
+* 向 SillyTavern 扩展发送 LLM 请求。
+* 接收 LLM 的流式或非流式响应。
+* 监听其他客户端发送的消息。
+* 调用服务器端函数。
+* 监听`role`的变更。
+* 向服务器申请加载静态资源
 
-## 2. 错误处理
+## 2. 模块化
 
-* **监听错误事件:**  始终监听 `connect_error`、`disconnect` 和 `MSG_TYPE.ERROR` 事件，并进行适当的错误处理。
-* **检查响应状态:**  对于支持回调函数的请求 (例如 `MSG_TYPE.FUNCTION_CALL`)，检查响应的 `success` 字段，并处理错误情况。
-* **超时:**  为请求设置超时时间，避免无限期等待。
-* **重试机制:**  对于可能因网络问题而失败的请求，实现重试机制 (例如，使用指数退避算法)。
+将您的客户端代码组织成模块，以便更好地管理和维护。以下是一种推荐的目录结构：
 
-## 3. 连接管理
+```
+client/
+├── index.html        # 主 HTML 文件
+├── app.js          # 应用入口点
+├── constants.js    # 常量定义 (最好是导入 lib/constants.js)
+├── utils.js        # 工具函数
+├── socketManager.js # Socket.IO 连接管理
+├── llmAPI.js       # LLM 交互 API
+├── functionCallAPI.js # 函数调用 API
+└── style.css          # 样式
+```
 
-* **自动重连:**  启用 Socket.IO 的自动重连功能，并配置适当的重试次数和延迟。
-* **延迟重连:** 如果是客户端在短时间内断开所有连接，则最好等待一段时间再重连
-* **连接复用:**  尽量复用 Socket.IO 连接，避免频繁地创建和销毁连接。
-* **命名空间:**  根据功能使用不同的命名空间。
-* **心跳:**  可以利用 Socket.IO 内置的心跳机制 (ping/pong) 来检测连接是否仍然有效。
+## 3. 客户端生命周期
 
-## 4. 性能
+1. **连接到默认命名空间 (/)**
+2. **客户端认证 (/auth)**
+3. **获取和监听可用扩展分配**
+4. **监听角色变更**
+5. **LLM 交互和消息同步**
+6. **函数调用 (可选)**
 
-* **批量处理:**  如果可能，将多个请求合并成一个批处理请求，以减少网络开销。
-* **流式处理:**  对于大量数据，使用流式传输 (例如，使用 `@sap_oss/node-socketio-stream` 库)。
-* **数据压缩:**  如果数据量较大，可以考虑对数据进行压缩 (例如，使用 GZIP)。
-* **避免不必要的请求:**  缓存数据，避免重复请求相同的数据。
-* **UI 节流/防抖:**  对于频繁触发的 UI 更新 (例如，处理流式 LLM 响应)，使用节流 (throttling) 或防抖 (debouncing) 技术来减少不必要的 DOM 操作。
+## 4. 最佳实践: 代码示例
 
-## 5. 安全性
+以下是遵循最佳实践的客户端代码示例，包含了所有必要的 JavaScript 文件。
 
-* **密钥管理:**  不要将客户端密钥 (`key`) 硬编码在客户端代码中。考虑使用环境变量、配置文件或安全存储机制。
-* **HTTPS:**  如果可能，使用 HTTPS (wss://) 进行安全通信。
-* **输入验证:**  对用户输入进行验证和清理，防止注入攻击。
-* **最小权限原则:**  客户端只连接到它需要的命名空间，并且只请求它需要的权限。
-
-## 6. 代码示例 (JavaScript)
-
-以下是一个遵循最佳实践的客户端代码示例：
-
-**`constants.js`:**
+### 4.1. `constants.js`
 
 ```javascript
 // constants.js
-// 最好是导入 lib/constants.js 而不是自己创建
+// 最好是直接导入服务器端的 lib/constants.js，而不是自己重新定义
 export const MSG_TYPE = {
-  LLM_REQUEST: 'LLM_REQUEST',
-  FUNCTION_CALL: 'FUNCTION_CALL',
-  ERROR: 'ERROR',
-  // ... 其他消息类型 ...
+    LLM_REQUEST: 'LLM_REQUEST',
+    FUNCTION_CALL: 'FUNCTION_CALL',
+    ERROR: 'ERROR',
+    NEW_MESSAGE: 'new_message',
+    GET_ASSIGNMENTS_FOR_ROOM: 'GET_ASSIGNMENTS_FOR_ROOM',
+    AVAILABLE_EXTENSIONS: 'AVAILABLE_EXTENSIONS',
+    MEMBER_ROLE_CHANGED: 'member_role_changed',
+    NON_STREAM: 'NON_STREAM',
+    // ... 其他消息类型 ...
 };
 
 export const NAMESPACES = {
-  LLM: '/llm',
-  FUNCTION_CALL: '/function_call',
-  AUTH:'/auth',
-  // ... 其他命名空间 ...
+    LLM: '/llm',
+    FUNCTION_CALL: '/function_call',
+    ROOMS: '/rooms',
+    AUTH: '/auth',
+    // ... 其他命名空间 ...
 };
-
 export const STREAM_EVENTS = {
-    streamed_data:'streamed_data',
+    streamed_data: 'streamed_data',
 }
 ```
 
-**`utils.js`:**
+### 4.2. `utils.js`
 
 ```javascript
 // utils.js
 import { v4 as uuidv4 } from 'uuid';
 
 export function generateUniqueId() {
-  return uuidv4();
+    return uuidv4();
 }
 ```
 
-**`socketManager.js`:**
+### 4.3. `socketManager.js`
 
 ```javascript
 // socketManager.js
 import { io } from 'socket.io-client';
-import { MSG_TYPE, NAMESPACES } from './constants';//最好是导入 lib/constants.js 而不是自己创建
+import { MSG_TYPE, NAMESPACES, STREAM_EVENTS } from './constants';
+import ss from '@sap_oss/node-socketio-stream';
 
 const serverAddress = 'http://localhost'; // 从环境变量或配置文件中获取
 const serverPort = 4000;
 const clientId = 'my-client';
 const clientType = 'web-app';
-const clinetDesc = '服务器监控网页'
-const clientHTML = `${serverAddress}:${serverPort}/yourAddress.html`
 // const clientKey = 'your-secret-key'; // 不要硬编码！
-// 从安全的地方获取客户端密钥 (例如，环境变量、配置文件、安全存储)
-const clientKey = process.env.CLIENT_KEY || 'fallback-key'; // 示例：从环境变量获取
+const clientKey = process.env.CLIENT_KEY || 'fallback-key'; // 从安全的地方获取
+const clinetDesc = '网页'
+const clientHTML = `${serverAddress}:${serverPort}/yourAddress.html`
+const authData = {
+    clientType: clientType,
+    clientId: clientId,
+    key: clientKey, // 从环境变量获取
+    desc: clinetDesc,
+    clienthtml: clientHTML,
+};
 
 // 示例：自动获取密钥，但前提是网络环境为相对安全
 /*
@@ -119,14 +129,6 @@ authSocket.on(MSG_TYPE.CLIENT_KEY , (data) =>){
   }
 */
 
-const authData = {
-  clientType: clientType,
-  clientId: clientId,
-  key: clientKey,
-  desc: clinetDesc,
-  clienthtml: clientHTML,
-};
-
 const sockets = {};
 
 /**
@@ -135,49 +137,50 @@ const sockets = {};
  * @returns {Socket} - Socket.IO 连接实例
  */
 export function getSocket(namespace) {
-  if (!sockets[namespace]) {
-    sockets[namespace] = createSocket(namespace);
-  }
-  return sockets[namespace];
+    if (!sockets[namespace]) {
+        sockets[namespace] = createSocket(namespace);
+    }
+    return sockets[namespace];
 }
+
 /**
  * 创建并配置 Socket.IO 连接
  * @param {string} namespace - 命名空间
  * @returns {Socket} - Socket.IO 连接实例
  */
 function createSocket(namespace) {
-  const socket = io(`${serverAddress}:${serverPort}${namespace}`, {
-    auth: authData,
-    autoConnect: true, // 启用自动连接
-    reconnection: true, // 启用自动重连
-    reconnectionAttempts: 5, // 重连尝试次数
-    reconnectionDelay: 1000, // 重连延迟 (毫秒)
-  });
+    const socket = io(`${serverAddress}:${serverPort}${namespace}`, {
+        auth: authData,
+        autoConnect: true, // 启用自动连接
+        reconnection: true, // 启用自动重连
+        reconnectionAttempts: 5, // 重连尝试次数
+        reconnectionDelay: 1000, // 重连延迟 (毫秒)
+    });
 
-  // 通用错误处理
-  socket.on('connect_error', (error) => {
-    console.error(`Socket.IO connection error (${namespace}):`, error);
-  });
+    // 通用错误处理
+    socket.on('connect_error', (error) => {
+        console.error(`Socket.IO connection error (${namespace}):`, error);
+    });
 
-  socket.on('disconnect', (reason) => {
-    console.log(`Socket.IO disconnected (${namespace}). Reason:`, reason);
-  });
+    socket.on('disconnect', (reason) => {
+        console.log(`Socket.IO disconnected (${namespace}). Reason:`, reason);
+    });
 
-  socket.on(MSG_TYPE.ERROR, (error) => {
-    console.error(`Socket.IO error (${namespace}):`, error);
-  });
+    socket.on(MSG_TYPE.ERROR, (error) => {
+        console.error(`Socket.IO error (${namespace}):`, error);
+    });
 
-  return socket;
+    return socket;
 }
 
 /**
  * 关闭所有 Socket.IO 连接
  */
 export function closeAllSockets() {
-  for (const namespace in sockets) {
-    sockets[namespace].disconnect();
-    delete sockets[namespace];
-  }
+    for (const namespace in sockets) {
+        sockets[namespace].disconnect();
+        delete sockets[namespace];
+    }
 }
 
 /**
@@ -197,139 +200,139 @@ export function closeAllSockets() {
  * @returns {function} 返回一个函数，调用该函数可以移除事件监听器。
  */
 export function streamToElement(socket, eventName, elementId, options = {}) {
-  const { updateInterval = 200, maxBufferSize = 1024 * 1024, debug = false } = options;
+    const { updateInterval = 200, maxBufferSize = 1024 * 1024, debug = false } = options;
 
-  // --- 输入验证 ---
-  if (!socket || typeof socket !== 'object') {
-    throw new TypeError('socket 参数必须是一个有效的 Socket.IO socket 对象。');
-  }
-  if (typeof eventName !== 'string' || eventName.trim() === '') {
-    throw new TypeError('eventName 参数必须是一个非空字符串。');
-  }
-  if (typeof elementId !== 'string' || elementId.trim() === '') {
-    throw new TypeError('elementId 参数必须是一个非空字符串。');
-  }
-  if (typeof updateInterval !== 'number' || updateInterval < 0) {
-    throw new TypeError('updateInterval 参数必须是一个非负数。');
-  }
-  if (typeof maxBufferSize !== 'number' || maxBufferSize <= 0) {
-    throw new TypeError('maxBufferSize 参数必须是一个正数。');
-  }
-  if (typeof debug !== 'boolean') {
-    throw new TypeError('debug 参数必须是一个布尔值。');
-  }
+    // --- 输入验证 ---
+    if (!socket || typeof socket !== 'object') {
+        throw new TypeError('socket 参数必须是一个有效的 Socket.IO socket 对象。');
+    }
+    if (typeof eventName !== 'string' || eventName.trim() === '') {
+        throw new TypeError('eventName 参数必须是一个非空字符串。');
+    }
+    if (typeof elementId !== 'string' || elementId.trim() === '') {
+        throw new TypeError('elementId 参数必须是一个非空字符串。');
+    }
+    if (typeof updateInterval !== 'number' || updateInterval < 0) {
+        throw new TypeError('updateInterval 参数必须是一个非负数。');
+    }
+    if (typeof maxBufferSize !== 'number' || maxBufferSize <= 0) {
+        throw new TypeError('maxBufferSize 参数必须是一个正数。');
+    }
+    if (typeof debug !== 'boolean') {
+        throw new TypeError('debug 参数必须是一个布尔值。');
+    }
 
-  const element = document.getElementById(elementId);
-  if (!element) {
-    throw new Error(`找不到 ID 为 "${elementId}" 的元素。`);
-  }
+    const element = document.getElementById(elementId);
+    if (!element) {
+        throw new Error(`找不到 ID 为 "${elementId}" 的元素。`);
+    }
 
-  if (!socket.on || typeof socket.on !== 'function') {
-    throw new Error('传入的 socket 对象无效。 它需要一个有效的 Socket.IO socket 对象.');
-  }
+    if (!socket.on || typeof socket.on !== 'function') {
+        throw new Error('传入的 socket 对象无效。 它需要一个有效的 Socket.IO socket 对象.');
+    }
 
-  if (!eventName || typeof eventName !== 'string') {
-    throw new Error('传入的 eventName 无效。 它需要一个有效的 string 类型');
-  }
+    if (!eventName || typeof eventName !== 'string') {
+        throw new Error('传入的 eventName 无效。 它需要一个有效的 string 类型');
+    }
 
-  let accumulatedData = '';
-  let lastUpdateTime = 0;
-  let updateScheduled = false;
-  let buffer = [];
-  let buffering = false;
-  let totalBufferedSize = 0;
+    let accumulatedData = '';
+    let lastUpdateTime = 0;
+    let updateScheduled = false;
+    let buffer = [];
+    let buffering = false;
+    let totalBufferedSize = 0;
 
     const dataHandler = (chunk) => { //将 stream.on('data') 的处理函数提取出来
-    const chunkSize = chunk.length;
-    totalBufferedSize += chunkSize;
+        const chunkSize = chunk.length;
+        totalBufferedSize += chunkSize;
 
-    if (buffering || totalBufferedSize > maxBufferSize) {
-      buffering = true;
-      buffer.push(chunk);
-      if (debug) {
-        console.log(`Buffering: ${buffer.length} chunks, total size: ${totalBufferedSize}`);
-      }
-    } else {
-      accumulatedData += chunk.toString();
-    }
+        if (buffering || totalBufferedSize > maxBufferSize) {
+            buffering = true;
+            buffer.push(chunk);
+            if (debug) {
+                console.log(`Buffering: ${buffer.length} chunks, total size: ${totalBufferedSize}`);
+            }
+        } else {
+            accumulatedData += chunk.toString();
+        }
 
-    const now = Date.now();
+        const now = Date.now();
 
-    if (now - lastUpdateTime >= updateInterval && !updateScheduled) {
-      updateScheduled = true;
-      scheduleUpdate();
-    }
-  };
+        if (now - lastUpdateTime >= updateInterval && !updateScheduled) {
+            updateScheduled = true;
+            scheduleUpdate();
+        }
+    };
 
-  const endHandler = () => {
-    if(buffering){
-        processBuffer(); //process remaining data
-    }
+    const endHandler = () => {
+        if (buffering) {
+            processBuffer(); //process remaining data
+        }
 
-    if ('textContent' in element) {
-      element.textContent = accumulatedData;
-    } else {
-      element.innerHTML = accumulatedData;
-    }
-    console.log('流传输结束');
-  };
+        if ('textContent' in element) {
+            element.textContent = accumulatedData;
+        } else {
+            element.innerHTML = accumulatedData;
+        }
+        console.log('流传输结束');
+    };
 
-  const errorHandler = (error) => {
-    console.error('流传输错误:', error);
-  };
+    const errorHandler = (error) => {
+        console.error('流传输错误:', error);
+    };
 
-  const stream = ss(socket).stream;//获取ss.createStream() 方法
-  const streamOn = ss(socket).on(eventName, (stream) => {//给stream.on 绑定一个变量
-    stream.on('data', dataHandler);
-    stream.on('end', endHandler);
-    stream.on('error', errorHandler);
-  });
-
-  function scheduleUpdate() {
-    requestAnimationFrame(() => {
-
-      if(buffering){
-        processBuffer();
-      }
-
-      // 优先使用 textContent，其次使用 innerHTML
-      if ('textContent' in element) {
-        element.textContent = accumulatedData;
-      } else {
-        element.innerHTML = accumulatedData;
-      }
-
-      if (element.tagName === 'TEXTAREA' || element.tagName === 'INPUT') {
-        element.scrollTop = element.scrollHeight;
-      }
-
-      updateScheduled = false;
-      lastUpdateTime = Date.now();
+    const stream = ss.createStream();
+    const streamOn = ss(socket).on(eventName, (stream) => {//给stream.on 绑定一个变量
+        stream.on('data', dataHandler);
+        stream.on('end', endHandler);
+        stream.on('error', errorHandler);
     });
-  }
 
-  function processBuffer(){
-      while(buffer.length > 0){
-        const chunk = buffer.shift();
-        accumulatedData += chunk.toString();
-        totalBufferedSize -= chunk.length;
-      }
-      buffering = false;
-  }
+    function scheduleUpdate() {
+        requestAnimationFrame(() => {
 
-  // 返回一个清理函数
-  return () => {
-    if(streamOn && stream){ //streamOn 是一个Listener, 需要通过ss(socket).removeListener去清除
-        ss(socket).removeListener(eventName, streamOn);
-        stream.removeListener('data', dataHandler);//stream 是一个node emitter, 可以直接removeListener
-        stream.removeListener('end', endHandler);
-        stream.removeListener('error', errorHandler);
+            if (buffering) {
+                processBuffer();
+            }
+
+            // 优先使用 textContent，其次使用 innerHTML
+            if ('textContent' in element) {
+                element.textContent = accumulatedData;
+            } else {
+                element.innerHTML = accumulatedData;
+            }
+
+            if (element.tagName === 'TEXTAREA' || element.tagName === 'INPUT') {
+                element.scrollTop = element.scrollHeight;
+            }
+
+            updateScheduled = false;
+            lastUpdateTime = Date.now();
+        });
     }
-  };
+
+    function processBuffer() {
+        while (buffer.length > 0) {
+            const chunk = buffer.shift();
+            accumulatedData += chunk.toString();
+            totalBufferedSize -= chunk.length;
+        }
+        buffering = false;
+    }
+
+    // 返回一个清理函数
+    return () => {
+        if (streamOn && stream) { //streamOn 是一个Listener, 需要通过ss(socket).removeListener去清除
+            ss(socket).removeListener(eventName, streamOn);
+            stream.removeListener('data', dataHandler);//stream 是一个node emitter, 可以直接removeListener
+            stream.removeListener('end', endHandler);
+            stream.removeListener('error', errorHandler);
+        }
+    };
 }
 ```
 
-**`llmAPI.js`:**
+### 4.4. `llmAPI.js`
 
 ```javascript
 // llmAPI.js
@@ -338,42 +341,49 @@ import { MSG_TYPE, NAMESPACES, STREAM_EVENTS } from './constants';
 import { generateUniqueId } from './utils';
 import * as ss from '@sap_oss/node-socketio-stream'
 
-export function sendLLMRequest(message, targetClientId, requestType, callback) {
+/**
+ * 发送 LLM 请求
+ * @param {string} message - 消息文本
+ * @param {string | string[]} targetClientIds - 目标 SillyTavern 扩展的 clientId (或 clientId 数组)
+ * @param {string}  role - 客户端的role
+ * @param {Function} [callback] - 可选的回调函数，用于处理同步响应
+ */
+export function sendLLMRequest(message, targetClientIds, role, callback) {
   const socket = getSocket(NAMESPACES.LLM);
   const requestId = generateUniqueId();
+  const target = Array.isArray(targetClientIds) ? targetClientIds : [targetClientIds]; // 确保 target 是数组
 
   socket.emit(
     MSG_TYPE.LLM_REQUEST,
     {
-      target: targetClientId,
+      target: target,
       requestId: requestId,
       message: message,
-      requestType: requestType,
+      role: role,
       // ... 其他 LLM 参数 ...
-    },
-    (response) => {
-      if (callback) {
-        callback(response);
+      },
+      (response) => {
+        if (callback) {
+          callback(response);
+        }
       }
-    }
   );
 }
+
 /**
  * 监听流式数据
  * @param {HTMLElement} element - 用于显示流式数据的 HTML 元素。
  * @param {object} options - 传入streamToElement的参数
  * @returns {function} 返回一个函数，调用该函数可以移除事件监听器。
  */
-export function setupLLMStream(element,options) {
+export function setupLLMStream(element, options) {
     const socket = getSocket(NAMESPACES.LLM);
     const removeListener = streamToElement(socket, STREAM_EVENTS.streamed_data, element, options);
     return removeListener;
 }
-
-
 ```
 
-**`functionCallAPI.js`:**
+### 4.5. `functionCallAPI.js`
 
 ```javascript
 // functionCallAPI.js
@@ -381,133 +391,250 @@ import { getSocket } from './socketManager';
 import { MSG_TYPE, NAMESPACES } from './constants';
 import { generateUniqueId } from './utils';
 
+/**
+ * 调用服务器端函数
+ * @param {string} functionName - 要调用的函数名
+ * @param {any[]} args - 传递给函数的参数
+ * @param {string} target - 调用的目标 ('server' 或客户端 ID)
+ * @param {Function} [callback] - 可选的回调函数，用于接收函数调用的结果
+ */
 export function callFunction(functionName, args, target, callback) {
-  const socket = getSocket(NAMESPACES.FUNCTION_CALL);
-  const requestId = generateUniqueId();
+    const socket = getSocket(NAMESPACES.FUNCTION_CALL);
+    const requestId = generateUniqueId();
 
-  socket.emit(
-    MSG_TYPE.FUNCTION_CALL,
-    {
-      requestId: requestId,
-      functionName: functionName,
-      args: args,
-      target: target,
-    },
-    (response) => {
-      if (callback) {
-        callback(response);
-      }
-    }
-  );
+    socket.emit(
+        MSG_TYPE.FUNCTION_CALL,
+        {
+            requestId: requestId,
+            functionName: functionName,
+            args: args,
+            target: target,
+        },
+        (response) => {
+            if (callback) {
+                callback(response);
+            }
+        }
+    );
 }
 ```
 
-**`app.js` (示例):**
+### 4.6. `app.js`
 
 ```javascript
-// app.js (示例)
-import { getSocket,closeAllSockets } from './socketManager';
+// app.js
+import { getSocket, closeAllSockets } from './socketManager';
 import { MSG_TYPE, NAMESPACES } from './constants';
 import { sendLLMRequest, setupLLMStream } from './llmAPI';
 import { callFunction } from './functionCallAPI';
-
-// 你可以像如下代码来加载你想要的静态资源，具体用法详见开发文档，也可以参考server.js的initializeStaticResources()
-
-// 键：URL，值：文件相对于 server.js 的文件系统路径
-const initialResources = {}
-
-functionCallSocket.emit(MSG_TYPE.FUNCTION_CALL, {
-  requestId: requestId,
-  functionName: 'addStaticResources',
-  args: initialResources,
-  target: 'server'  
-  }, (response) => {
-    if (response.success) {
-      console.log('Function call result:', response.result);
-    } else {
-      console.error('Function call error:', response.error);
-    }
-  }
-);
-
+import { generateUniqueId } from './utils';
 
 // 获取 DOM 元素
 const messageInput = document.getElementById('messageInput');
 const sendButton = document.getElementById('sendButton');
-const llmResponseOutput = document.getElementById('llmResponseOutput');
+const llmResponseOutput = document.getElementById('llmResponseOutput'); // 假设你有一个用于显示 LLM 响应的元素
 
-// 连接到默认命名空间 (可选，取决于您的需求)
+// 连接到默认命名空间 (可选，但建议连接，因为它会自动创建房间和添加成员)
 const defaultSocket = getSocket('/');
 
 defaultSocket.on('connect', () => {
   console.log('Connected to default namespace!');
 });
 
+defaultSocket.on('connect_error', (error) => {
+  console.error('Default namespace connection error:', error);
+});
+
+defaultSocket.on('disconnect', (reason) => {
+  console.log('Disconnected from default namespace. Reason:', reason);
+});
+
+// 连接到 /rooms 命名空间
+function connectToRoomsNamespace() {
+  const roomsSocket = getSocket(NAMESPACES.ROOMS);
+
+  roomsSocket.on('connect', () => {
+    console.log('Connected to /rooms namespace!');
+
+    // 1. 主动获取当前分配
+    roomsSocket.emit(
+      MSG_TYPE.GET_ASSIGNMENTS_FOR_ROOM,
+      { roomName: clientId }, // 通常，房间名就是客户端 ID
+      (response) => {
+        if (response.status === 'ok') {
+          console.log('My assigned extensions:', response.assignments);
+          // 在这里保存/更新你的扩展列表 (例如，保存到 localStorage 或全局变量)
+        } else {
+          console.error('Failed to get assigned extensions:', response.message);
+        }
+      }
+    );
+
+    // 2. 监听分配更新
+    roomsSocket.on(MSG_TYPE.AVAILABLE_EXTENSIONS, (data) => {
+      console.log('Available extensions updated:', data.extensions);
+      // 在这里更新你的扩展列表
+    });
+    // 3. 监听角色变更
+    roomsSocket.on(MSG_TYPE.MEMBER_ROLE_CHANGED, (data) => {
+      console.log(`My role in room ${data.roomName} changed to ${data.role}`);
+      // 更新 UI 或执行其他操作 (例如，启用/禁用某些功能)
+      // 你也可以在这里更新你的 role 变量 (例如，localStorage)
+    });
+  });
+
+  roomsSocket.on('connect_error', (error) => {
+    onsole.error('Rooms namespace connection error:', error);
+  });
+}
+
+connectToRoomsNamespace(); // 调用函数以连接到 /rooms
+
 // 连接到 /llm 命名空间, 并设置流式监听
 const llmSocket = getSocket(NAMESPACES.LLM);
 const removeStreamListener = setupLLMStream(llmResponseOutput, {
-        updateInterval: 200, // 200ms 更新间隔
-        maxBufferSize: 1024 * 1024, // 1MB 缓冲区
+  updateInterval: 200, // 200ms 更新间隔
+  maxBufferSize: 1024 * 1024, // 1MB 缓冲区
+});
+
+llmSocket.on('connect', () => {
+  console.log('Connected to /llm namespace!');
+});
+
+// 监听非流式响应
+llmSocket.on('message', (data) => {
+  if (data.type === MSG_TYPE.NON_STREAM) {
+    console.log('Received non-stream message:', data.data);
+  }
+});
+
+// 监听上下文更新 
+llmSocket.on(MSG_TYPE.UPDATE_CONTEXT, (data) => {
+  console.log('Received updated context:', data.context);
+  // 在这里更新你的聊天记录显示 (直接用 data.context 替换)
+  // 例如：
+  //   displayChatContext(data.context);
 });
 
 // 发送 LLM 请求
 sendButton.addEventListener('click', () => {
   const message = messageInput.value;
   if (message) {
-    sendLLMRequest(message, 'your-sillytavern-client-id', 'newMessage', (response) => {
-        if(response.status === 'ok'){
-             console.log('LLM request sent successfully.');
-        }
+    // 假设你已经从 UI 或其他地方获取了 targetClientId 和 role
+    const targetClientId = 'your-sillytavern-client-id'; // 替换为实际的 SillyTavern clientId
+    const role = 'guest'; // 或 'user'、'manager'、'master'，取决于客户端类型和权限
+    sendLLMRequest(message, targetClientId, role, (response) => {
+      if (response.status === 'ok') {
+        console.log('LLM request sent successfully.');
+      } else {
+        console.log('LLM request failed')
+      }
     });
-    messageInput.value = '';
+      messageInput.value = ''; // 清空输入框
   }
 });
 
-// 调用函数示例
-callFunction(
-  'myServerFunction',
-  [arg1, arg2],
-  'server',
-  (response) => {
-    if (response.success) {
-      console.log('Function call result:', response.result);
-    } else {
-      console.error('Function call error:', response.error);
-    }
-  }
-);
+// 连接到 /function_call 命名空间 (可选)
+function connectToFunctionCallNamespace() {
+  const functionCallSocket = getSocket(NAMESPACES.FUNCTION_CALL);
 
-// 在页面关闭前, 或不需要连接时，关闭所有 Socket.IO 连接
+  functionCallSocket.on('connect', () => {
+    console.log('Connected to /function_call namespace!');
+
+    // 你可以在这里调用服务器端函数
+
+    // 示例：调用 addStaticResources 函数
+    // 假设你有一个名为 addStaticResources 的服务器端函数
+    // 键：URL，值：文件相对于 server.js 的文件系统路径
+    const initialResources = {
+      '/my-client/index.html': './exampleClient/your_client_name/index.html',
+      '/my-client/script.js': './exampleClient/your_client_name/script.js',
+      '/my-client/style.css': './exampleClient/your_client_name/style.css',
+      // 添加更多资源...
+    };
+
+    const requestId = generateUniqueId();
+
+    functionCallSocket.emit(MSG_TYPE.FUNCTION_CALL, {
+      requestId: requestId,
+      functionName: 'addStaticResources',
+      args: initialResources,
+      target: 'server'
+      }, (response) => {
+        if (response.success) {
+          console.log('Function call result:', response.result);
+          // 现在可以通过 URL 访问这些资源了，例如：
+          // http://localhost:4000/my-client/index.html
+          } else {
+            console.error('Function call error:', response.error);
+          }
+      });
+  });
+
+  functionCallSocket.on('connect_error', (error) => {
+    console.error('Function call connection error:', error);
+  });
+}
+
+connectToFunctionCallNamespace();
+
+// 在页面关闭前, 或不需要连接时，关闭所有 Socket.IO 连接, 并清除流式监听
 window.addEventListener('beforeunload', () => {
   removeStreamListener(); // 清除流式监听
   closeAllSockets();
 });
+
+// 错误处理 (监听全局错误)
+window.addEventListener('error', (event) => {
+  console.error('Unhandled error:', event.error);
+});
 ```
 
-**代码解释:**
+**HTML (`index.html`) 示例:**
 
-* **`constants.js`:**  定义了常量，避免硬编码。
-* **`utils.js`:**  定义了工具函数 (例如 `generateUniqueId`)。
-* **`socketManager.js`:**
-  * `getSocket()`:  获取或创建 Socket.IO 连接 (单例模式)。
-  * `createSocket()`: 创建并配置 Socket.IO 连接，包括错误处理和自动重连。
-  * `closeAllSockets()`:  关闭所有 Socket.IO 连接。
-  * `streamToElement()`: 接收流数据并实时更新到 HTML 元素
-* **`llmAPI.js`:**
-  * `sendLLMRequest()`:  封装了发送 LLM 请求的逻辑。
-  * `setupLLMStream()`: 设置流式监听
-* **`functionCallAPI.js`:**
-  * `callFunction()`:  封装了函数调用的逻辑。
+```html
+<!DOCTYPE html>
+<html>
+<head>
+  <title>SillyTavern-NewAge Client</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <h1>SillyTavern-NewAge Client</h1>
+
+  <div id="chat">
+    <div id="llmResponseOutput"></div>
+    <input type="text" id="messageInput" placeholder="Type your message...">
+    <button id="sendButton">Send</button>
+  </div>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>
+```
+
+**解释:**
+
+* **HTML (`index.html`):**
+  * 包含一个简单的聊天界面，包括一个用于显示 LLM 响应的 `div` (`llmResponseOutput`)、一个输入框 (`messageInput`) 和一个发送按钮 (`sendButton`)。
+  * 使用 `<script type="module" src="app.js"></script>` 导入 `app.js` 作为 ES 模块。
 * **`app.js`:**
   * 导入了各个模块。
   * 获取了 DOM 元素。
-  * 使用 `getSocket()` 获取 Socket.IO 连接。
-  * 使用 `sendLLMRequest()` 发送 LLM 请求。
-  * 使用 `callFunction()` 调用函数。
-  * 在页面关闭前关闭所有 Socket.IO 连接。
+  * 连接到默认命名空间、`/rooms`命名空间、`/llm`命名空间和`/function_call`命名空间。
+  * 设置了 LLM 流式响应的监听器 (`setupLLMStream`)。
+  * 实现了发送 LLM 请求的逻辑 (点击发送按钮时)。
+  * 实现了通过`/function_call`来请求服务器加载静态资源。
+  * 监听了`NEW_MESSAGE`事件。
+  * 在页面关闭前关闭所有 Socket.IO 连接，并清除流式监听。
+  * 添加了全局错误处理。
 
-**流程图**
+**流程图:**
 
 以下流程图展示了客户端的典型工作流程：
 
 <ClientWorkflow />
+
+**总结:**
+
+通过以上代码示例和解释，你应该对如何构建一个遵循最佳实践的 SillyTavern-NewAge 客户端有了更深入的了解。请根据你的具体需求调整代码和配置。

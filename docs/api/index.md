@@ -1,22 +1,22 @@
 ---
-title: API 总览
+title: 开发文档总览
 ---
 
-# API 总览
+# 总览
 
-本节提供了 SillyTavern-NewAge 扩展的 API 文档。
+本节提供了 SillyTavern-NewAge 扩展的开发文档的总览。
 
 ## 概述
 
-SillyTavern-NewAge 扩展的 API 分为三个主要部分：
+SillyTavern-NewAge 开发文档分为三个主要部分：
 
-* **客户端 API:**  供希望与 SillyTavern-NewAge 服务器交互的**非 SillyTavern 扩展**客户端（例如独立的 Web 应用、桌面应用、移动应用）开发者使用。
-* **扩展 API:** 供 SillyTavern 扩展开发者使用, 用于理解扩展端内部的工作原理。
-* **服务器 API:** 供 SillyTavern-NewAge 服务器开发者和高级用户使用，用于理解服务器内部工作原理、进行高级配置或贡献代码。
+* **客户端:**  供希望与 SillyTavern-NewAge 服务器交互的**非 SillyTavern 扩展**客户端（例如独立的 Web 应用、桌面应用、移动应用）开发者使用。
+* **扩展本体:** 供 SillyTavern 扩展开发者使用, 用于理解扩展端内部的工作原理。
+* **服务器:** 供 SillyTavern-NewAge 服务器开发者和高级用户使用，用于理解服务器内部工作原理、进行高级配置或贡献代码。
 
-## 客户端 API
+## 客户端
 
-客户端 API 允许非 SillyTavern 扩展的客户端连接到 SillyTavern-NewAge 服务器，并与 LLM 进行交互、调用函数等。
+允许非 SillyTavern 扩展的客户端连接到 SillyTavern-NewAge 服务器，并与 LLM 进行交互、调用函数等。
 
 **主要内容:**
 
@@ -28,12 +28,12 @@ SillyTavern-NewAge 扩展的 API 分为三个主要部分：
 * [函数调用](/api/client/function-call)
 * [最佳实践](/api/client/best-practices)
 
-## 扩展 API
+## 扩展本体
 
 > [!NOTE]
-> 扩展 API 文档正在建设中。
+> 扩展开发文档亟待建设中。
 
-扩展 API 允许开发者扩展 SillyTavern 的功能。
+允许开发者扩展 SillyTavern 的功能。
 
 **主要内容 (待补充):**
 
@@ -45,12 +45,12 @@ SillyTavern-NewAge 扩展的 API 分为三个主要部分：
 * 如何处理 LLM 请求和响应
 * ...
 
-## 服务器 API
+## 服务器
 
 > [!NOTE]
-> 服务器 API 文档正在建设中。
+> 服务器开发文档正在建设中。更新不一定很及时。
 
-服务器 API 主要供 SillyTavern-NewAge **内部团队的开发人员**和**想要贡献代码的开发者**参考。它详细介绍了服务器的内部工作原理、各个模块的功能以及如何进行高级配置。
+服务器开发文档主要供 SillyTavern-NewAge **内部团队的开发人员**和**想要贡献代码的开发者**参考。它详细介绍了服务器的内部工作原理、各个模块的功能以及如何进行高级配置。
 
 **主要内容:**
 
